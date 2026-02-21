@@ -152,6 +152,42 @@ For long runs, launch a detached monitor that tails output:
 nohup bash -c "while ! [ -f outputs/${SLURM_JOB_ID}.log ]; do sleep 5; done; tail -f outputs/${SLURM_JOB_ID}.log" > outputs/${SLURM_JOB_ID}_monitor.log 2>&1 &
 ```
 
+### Tiered Run Strategy
+
+Structure experiments into run tiers with different purposes:
+
+| Tier | Purpose | Duration | Key Settings |
+|------|---------|----------|--------------|
+| **dryrun** | Syntax/config smoke test | 5-10 min | Minimal iters, no eval |
+| **fastrun** | Feature debugging | 30-60 min | Short, frequent eval/callbacks |
+| **fullrun** | Real training | Hours-days | Full iters, periodic eval |
+| **fullrun_noeval** | Pure training speed | Hours-days | Full iters, no eval overhead |
+
+The **fastrun** is the key debugging tool: when testing a specific feature (evaluation, checkpointing, recognition callbacks), increase its frequency so it triggers within minutes. For example, to debug evaluation, set `eval_every_steps: 30`. The fastrun exists to catch issues cheaply before committing GPU hours to a fullrun.
+
+### Observe After Submit
+
+After submitting any training job, **always monitor for at least 5 minutes** to confirm:
+- No crashes or import errors
+- Loss is reasonable (not NaN, not static)
+- Correct config was picked up (batch size, learning rate, data source)
+- Throughput matches expectations (s/step)
+
+Don't submit and context-switch. The most common failure mode is a config mistake that burns GPU hours silently.
+
+### Job Name Override
+
+When reusing an sbatch script for a different purpose, always override the job name to reflect actual usage:
+
+```bash
+# Testing Lhotse loader with a fastrun script
+sbatch --job-name=lhotse-fastrun --account=$ACCOUNT slurm_scripts/train_fastrun.sbatch
+
+# Not: sbatch slurm_scripts/train_fastrun.sbatch  (misleading job name)
+```
+
+This keeps `squeue` and `sacct` output meaningful when you have multiple variants running.
+
 ## Anti-Patterns
 
 - **Hardcoding hyperparameters in sbatch scripts**: Sbatch sets environment and calls `python train.py` with config overrides. Hyperparameters live in config files.

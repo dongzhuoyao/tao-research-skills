@@ -119,6 +119,39 @@ def _log_wandb(self, metrics: dict, step: int):
         self.wandb_run.log(metrics, step=step)
 ```
 
+### Version-Prefixed Run Names
+
+Prefix W&B run names with a config version for easy filtering across experiments:
+
+```python
+version = cfg.get("version", "0.0")
+slurm_id = os.environ.get("SLURM_JOB_ID", "local")
+run_name = f"v{version}-{experiment_name}_{slurm_id}"
+# Result: "v0.1-snellius-fullrun_19812345"
+```
+
+This lets you filter W&B dashboards by version (e.g., `v0.1-*`) to compare runs from the same codebase version.
+
+### Comparing Runs via W&B API
+
+When comparing two training jobs, check the git commit via W&B metadata first — W&B auto-captures git state:
+
+```python
+import wandb
+api = wandb.Api()
+runs = api.runs("my-project", filters={"display_name": "fullrun_19812345"})
+run = runs[0]
+print(run.metadata["git"]["commit"])   # Which code version ran
+print(run.config["training"]["lr"])     # What config was used
+```
+
+Fallback when W&B metadata is unavailable:
+```bash
+# Cross-reference job submit time with git log
+sacct -j 19812345 --format=Submit
+git log --oneline --since="2024-01-15 10:00" --until="2024-01-15 11:00"
+```
+
 ## Anti-Patterns
 
 - **Console-only diagnostics**: If it's worth printing, it's worth logging to W&B. Users debug from W&B dashboards, not terminal scrollback.

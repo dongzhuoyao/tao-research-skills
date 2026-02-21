@@ -10,6 +10,7 @@ Reusable Claude Code skills for ML research workflows. Distilled from real train
 | [slurm-gpu-training](slurm-gpu-training/) | Running GPU training on HPC/Slurm: offline-first, preflight checks, conda init, job monitoring |
 | [wandb-experiment-tracking](wandb-experiment-tracking/) | W&B integration: online/offline modes, run naming, param logging, runtime config |
 | [hf-dataset-management](hf-dataset-management/) | HuggingFace dataset curation: upload verification, offline caching, preflight checks |
+| [gpu-training-acceleration](gpu-training-acceleration/) | PyTorch GPU optimization: CUDA flags, torch.compile strategy, fused optimizers, mixed precision |
 | [fail-fast-ml-engineering](fail-fast-ml-engineering/) | Engineering discipline: no silent fallbacks, explicit errors, config as truth, preflight patterns |
 | [weak-supervision-alignment](weak-supervision-alignment/) | Training with weak labels: CTC alignment without timestamps, hybrid CTC-AR, label expansion |
 
