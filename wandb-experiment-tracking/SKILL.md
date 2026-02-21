@@ -18,6 +18,10 @@ description: Use when integrating W&B experiment tracking into ML training pipel
 
 Users paste W&B logs to LLMs for diagnosis. Every piece of context needed to understand a training run must be in W&B — not hidden in console output only. If you `print()` something diagnostic, also log it to W&B.
 
+### Console Log Parity
+
+All logs that appear in the Slurm/terminal log must also appear in W&B's Logs tab. The user should be able to debug entirely from W&B without SSH access to the compute node. W&B's default console capture can be lossy — especially for tqdm `\r`-based progress bars. Ensure reliable capture with `settings=wandb.Settings(console="wrap_pty")` or by using Python `logging` (full `\n`-terminated lines) for important messages rather than tqdm-style overwrites.
+
 ### Runtime Config at Init
 
 Log the full resolved config at initialization, not just hyperparameters:
