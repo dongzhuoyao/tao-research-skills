@@ -144,6 +144,16 @@ sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS # Post-mortem
 tail -f <jobid>.log                                  # Live output
 ```
 
+### Account Lookup
+
+If you don't know the Slurm account name (needed for `sbatch --account=`), query it from past job history:
+
+```bash
+sacct --format=Account%30 -n | sort -u
+```
+
+This pulls the account field from all your historical jobs. Faster and more reliable than grepping log files.
+
 ### Background Monitor Pattern
 
 For long runs, launch a detached monitor that tails output:
