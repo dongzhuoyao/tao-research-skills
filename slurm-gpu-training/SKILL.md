@@ -117,6 +117,25 @@ run_name = f"{experiment_name}_{os.environ.get('SLURM_JOB_ID', 'local')}"
 | A100/H100 | 1200 iters (fastrun) | 1 hour (`01:00:00`) |
 | Any | Smoke test / dryrun | 30 min (`00:30:00`) |
 
+### Log Git Commit at Startup
+
+Always log the git commit hash at training start — without it, comparing two runs is guesswork:
+
+```bash
+# In sbatch script, before training:
+echo "Git commit: $(git rev-parse HEAD)"
+echo "Git dirty: $(git status --porcelain | head -5)"
+```
+
+Or in Python/W&B:
+```python
+import subprocess
+commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+wandb_run.config.update({"git_commit": commit})
+```
+
+When comparing jobs, cross-reference `sacct -j JOBID --format=Submit` with `git log` to determine which code each job ran.
+
 ### Monitoring
 
 ```bash
