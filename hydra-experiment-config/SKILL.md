@@ -107,6 +107,26 @@ fps = cfg.model.encoder.sample_rate / cfg.model.encoder.hop_samples
 fps = 25
 ```
 
+### Eliminating Module-Level Constants
+
+Module-level constants that duplicate config values must be replaced with config-driven parameters:
+
+```python
+# Bad: hardcoded constant duplicates config
+TARGET_SAMPLE_RATE = 24000  # lives in model.encoder.sample_rate
+
+def resample(waveform, orig_sr):
+    if orig_sr != TARGET_SAMPLE_RATE:
+        ...
+
+# Good: accept from config, use function default only as safety net
+def resample(waveform, orig_sr, target_sr: int):
+    if orig_sr != target_sr:
+        ...
+```
+
+Function parameter defaults like `target_sr: int = 24000` are acceptable as fallbacks, but the actual value must always be threaded from config at call sites. Use `functools.partial` to bind config values into pipeline callbacks that can't accept extra arguments directly.
+
 ### CLI Override Patterns
 
 ```bash
