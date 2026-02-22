@@ -12,8 +12,8 @@ Reusable Claude Code skills for ML research workflows. Distilled from real train
 | [hf-dataset-management](hf-dataset-management/) | HuggingFace dataset curation: upload verification, offline caching, preflight checks |
 | [gpu-training-acceleration](gpu-training-acceleration/) | PyTorch GPU optimization: CUDA flags, torch.compile strategy, fused optimizers, mixed precision |
 | [fail-fast-ml-engineering](fail-fast-ml-engineering/) | Engineering discipline: no silent fallbacks, explicit errors, config as truth, preflight patterns |
-| [weak-supervision-alignment](weak-supervision-alignment/) | Training with weak labels: CTC alignment without timestamps, hybrid CTC-AR, label expansion |
 | [lumi-supercomputer](lumi-supercomputer/) | LUMI supercomputer: AMD MI250X/ROCm GPU jobs, PyTorch containers, Slingshot network, Slurm on LUMI |
+| [snellius-supercomputer](snellius-supercomputer/) | SURF Snellius supercomputer: NVIDIA A100/H100 GPU jobs, conda/venv setup, Slurm on Snellius |
 
 ## Installation
 
