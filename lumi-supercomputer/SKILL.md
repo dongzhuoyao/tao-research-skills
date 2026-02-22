@@ -23,8 +23,13 @@ description: Use when running workloads on LUMI supercomputer, including GPU job
 | CPU memory | 512 GB DDR4 per node |
 | Network | HPE Slingshot-11, 200 Gbps/NIC, 4 NICs/node |
 | Software stack | ROCm (not CUDA), Singularity containers, `module load PyTorch/...` |
+| ROCm default | **6.3.4** (since Jan 2026 maintenance). PE versions: 25.03, 25.09 |
 | SSH | `lumi.csc.fi` |
 | Outbound IP | `193.167.209.128/26` (for firewall allowlists) |
+| Quota check | `lumi-workspaces` (no module needed) |
+| Allocation check | `lumi-allocations` |
+| Docs | `https://docs.lumi-supercomputer.eu` |
+| Support | `https://lumi-supercomputer.eu/user-support` |
 
 ## Key Differences from NVIDIA Clusters
 
@@ -51,6 +56,15 @@ These are the critical gotchas when moving from NVIDIA (Snellius, etc.) to LUMI:
 8. **Auto-requeue**: Enabled by default. Always use `--no-requeue` and `--open-mode=append` to avoid duplicated output.
 
 9. **Account is mandatory**: Every job needs `--account=project_<id>`. Check allocation with `lumi-allocations`.
+
+10. **Jan 2026 maintenance broke old software**: The system default ROCm is now **6.3.4** and PE versions are **25.03/25.09**. Software installed before Jan 2026 may not run — recompilation or rebuilding with 25.03+ is often required. Older PE versions are unsupported.
+
+11. **Reload CrayEnv in job scripts**: Login node environment is copied into jobs (with Rome/zen2 CPU targets). Reload `CrayEnv` in your sbatch script to pick up correct zen3 targets for LUMI-G compute nodes:
+    ```bash
+    module load CrayEnv  # resets CPU/network/accelerator targets for current node
+    ```
+
+12. **zen3 CPU optimization**: LUMI-G CPUs are AMD EPYC Trento (zen3 architecture). Compilers can optimize specifically for zen3 — the `CrayEnv` module auto-loads the correct target.
 
 ## GPU Job Template (Single Node)
 
@@ -119,6 +133,8 @@ See [references/pytorch-gpu-jobs.md](references/pytorch-gpu-jobs.md) for full mu
 | Expecting `conda activate` to work | Use `module load PyTorch/...` + Singularity |
 | No `--no-requeue` | Jobs auto-requeue on preemption, duplicating output |
 | `--mail-type` in sbatch | Not supported on LUMI |
+| Using pre-Jan-2026 software | Recompile with PE 25.03+, ROCm 6.3.4 |
+| Wrong CPU targets in job | Add `module load CrayEnv` in sbatch script |
 
 ## Detailed References
 
@@ -139,5 +155,7 @@ Key documentation sections:
 - Software: `https://docs.lumi-supercomputer.eu/software/`
 - PyTorch: `https://docs.lumi-supercomputer.eu/software/packages/pytorch/`
 - Storage: `https://docs.lumi-supercomputer.eu/storage/`
+- Post-maintenance updates: `https://lumi-supercomputer.github.io/update-202601/`
+- User support: `https://lumi-supercomputer.eu/user-support`
 
 After finding useful new information, consider updating this skill's reference files so future sessions benefit.

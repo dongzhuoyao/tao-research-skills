@@ -126,10 +126,14 @@ Check balance: `lumi-allocations`
 | Component | Details |
 |-----------|---------|
 | OS module system | Lmod (`module load ...`) |
-| Software stacks | CrayEnv, LUMI/24.03, Spack, Local-CSC |
-| Recommended toolchain | cpeGNU (for ROCm 6.2.x) |
+| Software stacks | CrayEnv, LUMI/25.03 (default), LUMI/25.09, Spack, Local-CSC |
+| Recommended toolchain | cpeGNU (for ROCm 6.3.x) |
 | Container runtime | Singularity CE (Apptainer-compatible, no module needed) |
-| ROCm versions | 6.2.2, 6.2.4, 6.4.4 (current GPU driver) |
+| ROCm default | **6.3.4** (since Jan 2026 maintenance) |
 | Container build tools | cotainr, PRoot, or local build + transfer |
 
-**Note:** cpeCray is NOT compatible with ROCm 6.2.x. Use cpeGNU for GPU code.
+**Notes:**
+- cpeCray is NOT compatible with ROCm 6.2.x. Use cpeGNU for GPU code.
+- PE 25.03 is the current default; 25.09 is also available. Older PE versions are unsupported after Jan 2026 maintenance.
+- Software installed before Jan 2026 may need recompilation with PE 25.03+ to run on the updated system.
+- LUMI-G CPUs are zen3 (Trento). Reload `CrayEnv` in job scripts to auto-set the correct zen3 CPU/network/accelerator targets (login nodes default to zen2/Rome targets).
