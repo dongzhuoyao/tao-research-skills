@@ -13,6 +13,8 @@ Reusable Claude Code skills for ML research workflows. Distilled from real train
 | [gpu-training-acceleration](gpu-training-acceleration/) | PyTorch GPU optimization: CUDA flags, torch.compile strategy, fused optimizers, mixed precision |
 | [fail-fast-ml-engineering](fail-fast-ml-engineering/) | Engineering discipline: no silent fallbacks, explicit errors, config as truth, preflight patterns |
 | [lumi-supercomputer](lumi-supercomputer/) | LUMI supercomputer: AMD MI250X/ROCm GPU jobs, PyTorch containers, Slingshot network, Slurm on LUMI |
+| [ml-ablation-design](ml-ablation-design/) | Designing ablation studies: synthetic data, variant loops, production metrics, W&B grouping |
+| [webdataset-streaming](webdataset-streaming/) | WebDataset tar-shard streaming: shard creation, DataLoader gotchas, Accelerate compatibility |
 | [snellius-supercomputer](snellius-supercomputer/) | SURF Snellius supercomputer: NVIDIA A100/H100 GPU jobs, conda/venv setup, Slurm on Snellius |
 
 ## Installation

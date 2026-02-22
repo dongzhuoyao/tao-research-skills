@@ -156,6 +156,95 @@ sacct -j 19812345 --format=Submit
 git log --oneline --since="2024-01-15 10:00" --until="2024-01-15 11:00"
 ```
 
+### Step Discipline
+
+Always pass explicit `step=` in every `wandb.log()` call. Never rely on W&B's implicit internal step counter:
+
+```python
+# Good: explicit step
+wandb.log({"batch/loss": loss.item()}, step=global_step)
+
+# Bad: implicit step (W&B auto-increments, causing step misalignment)
+wandb.log({"batch/loss": loss.item()})
+```
+
+This is **critical** when:
+- Using `reinit=True` (ablation variant loops) — implicit counter resets per `wandb.init()`
+- Logging from multiple code paths (train loop + eval callback + recognize callback)
+- Logging at irregular intervals (every N steps, not every step)
+
+### Include `iter_num` in Batch Logs
+
+Always log the total target iterations alongside current step so W&B charts show progress toward completion:
+
+```python
+wandb.log({
+    "batch/loss": loss.item(),
+    "batch/iter_num": total_iterations,  # e.g., 100000
+    "batch/step": global_step,
+}, step=global_step)
+```
+
+This lets anyone viewing the dashboard immediately see "step 5000 of 100000" without checking the config.
+
+### W&B Group Pattern for Ablations
+
+Group related runs (e.g., ablation variants) for side-by-side comparison in the W&B UI:
+
+```python
+job_id = os.environ.get("SLURM_JOB_ID", "local")
+wandb_group = f"ablate-{experiment}_{job_id}"
+
+for variant in variants:
+    wandb.init(
+        project="my-ablations",
+        name=f"ablate-{variant}_{job_id}",
+        group=wandb_group,
+        reinit=True,
+    )
+    # ... train variant ...
+
+    # Write final metrics to summary for the runs table
+    for key, value in final_results.items():
+        wandb.run.summary[f"final/{key}"] = value
+    wandb.finish()
+```
+
+The `group` parameter creates a collapsible group in the W&B runs table. Use `final/<metric>` in `wandb.run.summary` so key results appear as columns without scrolling through charts.
+
+### Separate W&B Projects for Exploration
+
+Keep ablation/synthetic runs in a different W&B project from production training:
+
+```python
+# Ablation script
+wandb.init(project="my-ablations", ...)
+
+# Production training
+wandb.init(project="my-training", ...)
+```
+
+Hundreds of short exploratory runs drown out production fullruns in the dashboard. Separate projects keep the main project clean.
+
+### W&B API Access (Not WebFetch)
+
+W&B pages are JavaScript-rendered SPAs. `WebFetch` or `curl` on a W&B URL returns empty HTML with no data. Always use the Python API:
+
+```python
+import wandb
+api = wandb.Api()
+
+# Query runs
+runs = api.runs("entity/project", filters={"display_name": "my-run"})
+run = runs[0]
+
+# Access data
+print(run.config)           # training config
+print(run.summary)          # final metrics
+print(run.metadata["git"])  # git commit info
+print(run.history())        # time-series metrics as DataFrame
+```
+
 ## Anti-Patterns
 
 - **Console-only diagnostics**: If it's worth printing, it's worth logging to W&B. Users debug from W&B dashboards, not terminal scrollback.
