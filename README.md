@@ -16,6 +16,7 @@ Reusable Claude Code skills for ML research workflows. Distilled from real train
 | [ml-ablation-design](ml-ablation-design/) | Designing ablation studies: synthetic data, variant loops, production metrics, W&B grouping |
 | [webdataset-streaming](webdataset-streaming/) | WebDataset tar-shard streaming: shard creation, DataLoader gotchas, Accelerate compatibility |
 | [snellius-supercomputer](snellius-supercomputer/) | SURF Snellius supercomputer: NVIDIA A100/H100 GPU jobs, conda/venv setup, Slurm on Snellius |
+| [tao-tmux-zsh](tao-tmux-zsh/) | Personal tmux + zsh dotfiles: Gruvbox theme, vim-style bindings, Oh My Zsh, consistent terminal setup |
 
 ## Installation
 
