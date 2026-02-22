@@ -136,6 +136,7 @@ See [references/pytorch-gpu-jobs.md](references/pytorch-gpu-jobs.md) for full mu
 | Using pre-Jan-2026 software | Recompile with PE 25.03+, ROCm 6.3.4 |
 | Wrong CPU targets in job | Add `module load CrayEnv` in sbatch script |
 | Using zsh | Cray PE init scripts are bash-only. Use bash on LUMI. |
+| `tmux`: missing or unsuitable terminal | `export TERM=xterm-256color` before `tmux`. LUMI lacks terminfo for modern terminals (Ghostty, Kitty, etc.). Fix permanently via `SetEnv TERM=xterm-256color` in local `~/.ssh/config`. |
 
 ## Detailed References
 
