@@ -135,6 +135,7 @@ See [references/pytorch-gpu-jobs.md](references/pytorch-gpu-jobs.md) for full mu
 | `--mail-type` in sbatch | Not supported on LUMI |
 | Using pre-Jan-2026 software | Recompile with PE 25.03+, ROCm 6.3.4 |
 | Wrong CPU targets in job | Add `module load CrayEnv` in sbatch script |
+| Using zsh | Cray PE init scripts are bash-only. Use bash on LUMI. |
 
 ## Detailed References
 
