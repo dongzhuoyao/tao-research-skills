@@ -15,7 +15,7 @@ description: Use when optimizing PyTorch training speed or memory on CUDA GPUs â
 - Setting up mixed precision (bf16/fp16)
 - Writing custom CUDA/Triton kernels that interact with AMP
 - Pre-computing encoder features to skip expensive forward passes during training
-- For FID evaluation during training, see `fid-evaluation` skill
+- For generative model evaluation metrics, see `genai-evaluation-metrics` skill
 
 ## Core Principles
 

@@ -28,7 +28,7 @@ Then append the following to CLAUDE.md under a "### Shared skills" section:
 - `wandb-experiment-tracking`: W&B logging strategy, online/offline modes.
 - `hf-dataset-management`: HF dataset caching, preflight, upload verification.
 - `gpu-training-acceleration`: PyTorch GPU optimization, torch.compile, gradient checkpointing, Triton fusion, latent-space training.
-- `fid-evaluation`: Online FID/IS/KID evaluation during training, torchmetrics, sample strategy, memory management.
+- `genai-evaluation-metrics`: GenAI evaluation metrics (FID, IS, KID, sFID, FDD, FVD, PRDC, AuthPct, Vendi), feature extractors, online/offline eval.
 - `fail-fast-ml-engineering`: No silent fallbacks, config as truth, preflight.
 - `ml-ablation-design`: Synthetic ablation design, variant loops, production metrics.
 - `webdataset-streaming`: WebDataset tar-shard streaming, Accelerate compatibility, DataLoader gotchas.
@@ -77,7 +77,7 @@ git submodule add https://github.com/dongzhuoyao/tao-research-skills.git skills/
 | [wandb-experiment-tracking](wandb-experiment-tracking/) | W&B integration: online/offline modes, run naming, param logging, runtime config |
 | [hf-dataset-management](hf-dataset-management/) | HuggingFace dataset curation: upload verification, offline caching, preflight checks |
 | [gpu-training-acceleration](gpu-training-acceleration/) | PyTorch GPU optimization: CUDA flags, torch.compile, fused optimizers, mixed precision, gradient checkpointing, Triton kernel fusion, latent-space training |
-| [fid-evaluation](fid-evaluation/) | Online FID/IS/KID/sFID/FDD evaluation during generative model training: torchmetrics, sample strategy, distributed gather, memory management |
+| [genai-evaluation-metrics](genai-evaluation-metrics/) | GenAI evaluation: FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi — feature extractors, online/offline eval, distributed computation |
 | [fail-fast-ml-engineering](fail-fast-ml-engineering/) | Engineering discipline: no silent fallbacks, explicit errors, config as truth, preflight patterns |
 | [lumi-supercomputer](lumi-supercomputer/) | LUMI supercomputer: AMD MI250X/ROCm GPU jobs, PyTorch containers, Slingshot network, Slurm on LUMI |
 | [ml-ablation-design](ml-ablation-design/) | Designing ablation studies: synthetic data, variant loops, production metrics, W&B grouping |
