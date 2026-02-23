@@ -252,13 +252,42 @@ The `(*)` wildcard means all arguments are allowed. The `deny: []` list is empty
 
 ## Plugins
 
-| Plugin | Purpose |
-|--------|---------|
-| `superpowers` | Brainstorming, debugging, TDD, code review, planning workflows |
-| `code-simplifier` | Simplify and refine code |
-| `ralph-loop` | Autonomous development loop |
-| `claude-md-management` | Audit and improve CLAUDE.md files |
-| `claude-code-setup` | Recommend Claude Code automations for a project |
+All plugins are from `claude-plugins-official`. Enable in `settings.json` under `enabledPlugins`.
+
+### superpowers (Recommended)
+
+The most valuable plugin — provides structured workflows that prevent undisciplined coding. Key sub-skills:
+
+| Sub-skill | When it fires | What it does |
+|-----------|---------------|--------------|
+| `brainstorming` | Before any creative work (features, components) | Explores intent, requirements, and design before implementation |
+| `systematic-debugging` | Any bug, test failure, unexpected behavior | Structured root-cause analysis before proposing fixes |
+| `test-driven-development` | Before writing implementation code | Write tests first, then implement |
+| `writing-plans` | Multi-step tasks with specs | Creates structured implementation plans |
+| `executing-plans` | After a plan is written | Executes plans with review checkpoints |
+| `dispatching-parallel-agents` | 2+ independent tasks | Runs subagents in parallel |
+| `subagent-driven-development` | Independent tasks in current session | Parallelizes within one session |
+| `requesting-code-review` | After completing a feature | Validates work meets requirements |
+| `receiving-code-review` | When getting feedback | Prevents blind agreement — requires technical verification |
+| `verification-before-completion` | Before claiming work is done | Runs verification commands; evidence before assertions |
+| `using-git-worktrees` | Feature work needing isolation | Creates isolated git worktrees |
+| `finishing-a-development-branch` | Implementation complete, tests pass | Guides merge, PR, or cleanup decisions |
+
+### code-simplifier
+
+Simplifies and refines code for clarity, consistency, and maintainability. Focuses on recently modified code unless instructed otherwise. Use after a feature is implemented to clean up.
+
+### ralph-loop
+
+Autonomous development loop — lets Claude work through multi-step tasks with minimal intervention. Sub-commands: `ralph-loop` (start), `cancel-ralph` (stop), `help` (explain).
+
+### claude-md-management
+
+Audits and improves `CLAUDE.md` files. Use when project instructions are stale, incomplete, or after major architectural changes. Sub-skills: `revise-claude-md` (update with session learnings), `claude-md-improver` (full audit against quality templates).
+
+### claude-code-setup
+
+Analyzes a codebase and recommends Claude Code automations: hooks, subagents, skills, plugins, MCP servers. Use when setting up Claude Code for a new project or optimizing an existing workflow.
 
 ## Notes
 
