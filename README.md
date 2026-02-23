@@ -14,7 +14,25 @@
 
 ## Quick Start
 
-### One-prompt install (recommended)
+### Install via npx (recommended)
+
+```bash
+# Install all skills to Claude Code
+npx skills add dongzhuoyao/tao-research-skills
+
+# Install to a specific agent
+npx skills add dongzhuoyao/tao-research-skills -a claude-code
+
+# Install a single skill
+npx skills add dongzhuoyao/tao-research-skills --skill gpu-training-acceleration
+
+# List available skills before installing
+npx skills add dongzhuoyao/tao-research-skills --list
+```
+
+See [skills.sh](https://skills.sh) for more options.
+
+### One-prompt install (git submodule)
 
 Copy this into your project's `CLAUDE.md` and Claude will set everything up:
 
