@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-13-blue)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)]() [![Codex](https://img.shields.io/badge/Codex-compatible-orange)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-13-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -73,7 +73,19 @@ skill-name/
   references/           # (optional) Detailed docs for progressive disclosure
 ```
 
-**Compatible agents** — Skills use the standard `name` + `description` frontmatter, so they work with Claude Code (`.claude/skills/`), Codex (`.agents/skills/`), and any agent that follows the open skills spec.
+**Compatible agents** — Skills use the [Open Agent Skills](https://agentskills.io) standard (`name` + `description` frontmatter), supported by 30+ agents:
+
+| Agent | Skills Path | Instruction File |
+|-------|-------------|-----------------|
+| [Claude Code](https://claude.ai/code) | `.claude/skills/` | `CLAUDE.md` |
+| [Codex](https://developers.openai.com/codex) | `.agents/skills/` | `AGENTS.md` |
+| [Cursor](https://cursor.com) | `.cursor/skills/` | `.cursorrules` |
+| [Gemini CLI](https://geminicli.com) | `.gemini/skills/` | `GEMINI.md` |
+| [VS Code / Copilot](https://code.visualstudio.com) | `.github/skills/` | `.github/copilot-instructions.md` |
+| [TRAE](https://trae.ai) | `.trae/skills/` | `TRAE.md` |
+| [Roo Code](https://roocode.com) | `.roo/skills/` | `.roo/rules` |
+
+And many more — see [agentskills.io](https://agentskills.io) for the full list.
 
 **Trigger keywords** — Descriptions include specific terms (e.g., `"sbatch"`, `"FID"`, `"torch.compile"`) so the agent matches them to your task automatically.
 
