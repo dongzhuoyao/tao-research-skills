@@ -4,7 +4,7 @@
 
 **Battle-tested Claude Code skills for ML research workflows.**
 
-*Distilled from real training pipelines on A100/H100 clusters.*
+*Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
 [![Skills](https://img.shields.io/badge/skills-12-blue)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
