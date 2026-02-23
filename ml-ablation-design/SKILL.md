@@ -1,6 +1,6 @@
 ---
 name: ml-ablation-design
-description: Use when designing ablation studies to compare model components, loss functions, or architectural choices. Covers synthetic data experiments, variant loops, production metrics, and W&B grouping.
+description: Use when designing ablation studies to compare model components, loss functions, or architectural choices. Covers synthetic data experiments, variant loops, production metrics, and W&B grouping. Triggers: "ablation", "ablation study", "variant comparison", "controlled experiment", "synthetic data experiment"
 ---
 
 # ML Ablation Design
@@ -11,6 +11,15 @@ description: Use when designing ablation studies to compare model components, lo
 - Designing controlled experiments with synthetic data before committing GPU hours
 - Building self-contained ablation scripts that run end-to-end without external dependencies
 - Setting up multi-variant experiments with proper W&B tracking
+
+## Workflow
+
+- [ ] **Hypothesis**: Define what you're testing and expected outcome
+- [ ] **Synthetic first**: Build toy data, run all variants (~10 min)
+- [ ] **Analyze synthetic**: Check if signal separates variants
+- [ ] **Real pipeline**: Run on real data only if synthetic results are promising
+- [ ] **Compare**: W&B grouped runs, dual-table console output
+- [ ] **Decide**: Pick winner based on production metrics, not proxies
 
 ## Core Pattern: Self-Contained Ablation Script
 
@@ -198,3 +207,9 @@ For multi-objective ablations, print separate tables for each objective class so
 - **Proxy metrics that diverge from production**: Token-level accuracy on synthetic IDs won't catch bugs in your Harte conversion, segmentation, or interval computation. Use the real evaluation pipeline.
 - **Polluting the main W&B project**: Hundreds of short ablation runs drown out production fullruns. Use a separate W&B project for exploration.
 - **Giant ablation scripts**: The script should be self-contained but focused. If it exceeds ~500 lines, you're probably reimplementing your training loop instead of testing a specific hypothesis.
+
+## See Also
+
+- `wandb-experiment-tracking` — Grouping ablation runs in W&B, `final/` summary metrics
+- `hydra-experiment-config` — Variant configs using Hydra config groups
+- `slurm-gpu-training` — Slurm launcher pattern for ablation scripts

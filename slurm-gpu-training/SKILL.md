@@ -1,6 +1,6 @@
 ---
 name: slurm-gpu-training
-description: Use when running ML training on HPC clusters with Slurm, including job submission, environment setup, monitoring, and failure triage. Applies to any GPU training workload on Slurm-managed clusters.
+description: Use when running ML training on HPC clusters with Slurm, including job submission, environment setup, monitoring, and failure triage. Applies to any GPU training workload on Slurm-managed clusters. Triggers: "sbatch", "srun", "Slurm", "SBATCH", "job submission", "HPC", "cluster", "walltime", "squeue"
 ---
 
 # Slurm GPU Training
@@ -11,6 +11,15 @@ description: Use when running ML training on HPC clusters with Slurm, including 
 - Setting up conda/venv environments for non-interactive Slurm shells
 - Debugging failed Slurm jobs (OOM, timeout, module issues)
 - Planning walltime and resource requests for GPU training
+
+## Workflow
+
+- [ ] **Preflight**: Run preflight script to verify data, weights, env vars
+- [ ] **Config**: Set Hydra config overrides, verify with `--cfg job`
+- [ ] **Submit**: `sbatch` with correct account, partition, walltime
+- [ ] **Observe**: Monitor first 5 min for crashes, NaN loss, wrong config
+- [ ] **Monitor**: `squeue`, `tail -f`, W&B dashboard
+- [ ] **Post-mortem**: `sacct`, check W&B summary, save best checkpoint
 
 ## Core Principles
 
@@ -206,3 +215,10 @@ This keeps `squeue` and `sacct` output meaningful when you have multiple variant
 - **Date-stamped log files**: Use `%j.log` (job ID only). Date stamps create clutter and the job ID is already unique and traceable via `sacct`.
 - **Assuming internet access**: Never `pip install` or `huggingface-cli download` inside a Slurm job. Cache everything beforehand.
 - **Ignoring exit codes**: Always use `set -euo pipefail` in sbatch scripts. Silent failures waste GPU hours.
+
+## See Also
+
+- `hydra-experiment-config` — Config structure for experiments
+- `wandb-experiment-tracking` — Run naming with job ID, monitoring dashboards
+- `gpu-training-acceleration` — CUDA flags and acceleration settings in sbatch
+- `fail-fast-ml-engineering` — Preflight validation before job submission

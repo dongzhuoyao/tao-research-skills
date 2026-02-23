@@ -1,6 +1,6 @@
 ---
 name: snellius-supercomputer
-description: Use when running workloads on SURF Snellius supercomputer, including GPU job submission (NVIDIA A100/H100), conda/venv setup, Slurm configuration, and Snellius-specific infrastructure.
+description: Use when running workloads on SURF Snellius supercomputer, including GPU job submission (NVIDIA A100/H100), conda/venv setup, Slurm configuration, and Snellius-specific infrastructure. Triggers: "Snellius", "SURF", "A100", "H100", "Dutch HPC"
 ---
 
 # Snellius Supercomputer
@@ -162,3 +162,8 @@ Key documentation sections:
 - Support: `helpdesk@surf.nl`
 
 After finding useful new information, consider updating this skill's reference files so future sessions benefit.
+
+## See Also
+
+- `slurm-gpu-training` — General Slurm patterns (job submission, monitoring, preflight)
+- `gpu-training-acceleration` — NVIDIA GPU acceleration techniques

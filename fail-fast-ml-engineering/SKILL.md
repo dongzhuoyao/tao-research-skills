@@ -1,6 +1,6 @@
 ---
 name: fail-fast-ml-engineering
-description: Use when designing ML training pipelines, data loaders, or inference systems. Enforces engineering discipline — no silent fallbacks, explicit errors on critical paths, config as single source of truth.
+description: Use when designing ML training pipelines, data loaders, or inference systems. Enforces engineering discipline — no silent fallbacks, explicit errors on critical paths, config as single source of truth. Triggers: "silent failure", "fallback", "preflight", "assertion", "error handling", "fail fast", "config truth"
 ---
 
 # Fail-Fast ML Engineering
@@ -154,3 +154,9 @@ else:
 - **Late validation**: Checking data format inside the training loop wastes GPU time. Validate in preflight.
 - **Magic numbers**: `fps = 25` hides the derivation. Use `fps = sample_rate / hop_samples` so the dependency is explicit.
 - **Optimistic error handling**: Don't catch errors just to log and continue. If the error matters, stop. If it doesn't, don't catch it.
+
+## See Also
+
+- `hydra-experiment-config` — Config as single source of truth
+- `hf-dataset-management` — Preflight verification for datasets
+- `slurm-gpu-training` — Preflight before Slurm job submission

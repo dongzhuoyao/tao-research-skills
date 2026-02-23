@@ -1,6 +1,6 @@
 ---
 name: gpu-training-acceleration
-description: Use when optimizing PyTorch training speed or memory on CUDA GPUs — global flags, torch.compile, fused optimizers, mixed precision, gradient checkpointing, kernel fusion, memory layout, or latent-space training. Applies to any PyTorch training workload.
+description: Use when optimizing PyTorch training speed or memory on CUDA GPUs — global flags, torch.compile, fused optimizers, mixed precision, gradient checkpointing, kernel fusion, memory layout, or latent-space training. Applies to any PyTorch training workload. Triggers: "torch.compile", "TF32", "fused optimizer", "mixed precision", "bf16", "fp16", "gradient checkpointing", "Triton kernel", "CUDA flags", "GPU slow", "GPU memory"
 ---
 
 # GPU Training Acceleration
@@ -146,192 +146,28 @@ if cfg.training.runtime.compile:
 
 ### Gradient Checkpointing
 
-Trade ~10% speed for ~50% memory. Wrap repeated blocks (transformer layers, SSM blocks) so activations are recomputed in backward instead of stored:
+Trade ~10% speed for ~50% memory by recomputing activations in backward. Config-gate with `runtime.gradient_checkpointing`.
+See [references/gradient-checkpointing.md](references/gradient-checkpointing.md) for implementation.
 
-```python
-# Per-block checkpointing (preferred — fine-grained control)
-for block in self.blocks:
-    if self.use_checkpoint:
-        hidden, residual = torch.utils.checkpoint.checkpoint(
-            block, hidden, residual, cond, use_reentrant=False
-        )
-    else:
-        hidden, residual = block(hidden, residual=residual, c=cond)
-```
+### Fused Add + LayerNorm (Triton) & Residual in FP32
 
-Config-gate it:
-```yaml
-runtime:
-  gradient_checkpointing: true  # ~50% memory reduction, ~10% slower
-```
+Fuse residual addition with normalization into a single Triton kernel, and keep the residual stream in FP32 to prevent numerical drift.
+See [references/triton-fused-ops.md](references/triton-fused-ops.md) for Triton kernel patterns and FP32 residual implementation.
 
-### Fused Add + LayerNorm (Triton)
+### Custom Autograd with AMP & Multi-Tier Attention Fallback
 
-Fuse residual addition with normalization into a single GPU kernel. Eliminates an extra memory read/write pass:
+Use `@custom_fwd`/`@custom_bwd` for custom autograd ops under mixed precision, and a 3-tier attention fallback (SDPA > xformers > math).
+See [references/custom-autograd-amp.md](references/custom-autograd-amp.md) for implementation details.
 
-```python
-# Bad: two separate ops = two memory passes
-residual = residual + self.drop_path(x)
-x = self.norm(residual)
+### Memory Layout, In-Place Operations, `empty_cache()` & NVCC Build
 
-# Good: single fused kernel
-from mamba_ssm.ops.triton.layernorm import rms_norm_fn, layer_norm_fn
-
-fused_fn = rms_norm_fn if isinstance(self.norm, RMSNorm) else layer_norm_fn
-x, residual = fused_fn(
-    self.drop_path(x), self.norm.weight, self.norm.bias,
-    residual=residual, prenorm=True,
-    residual_in_fp32=True,  # keep residual stream in FP32
-    eps=self.norm.eps,
-)
-```
-
-When writing your own Triton kernels, use `@triton.autotune` over warp counts for forward/backward:
-```python
-@triton.autotune(
-    configs=[triton.Config({"BLOCK_N": 512}, num_warps=w) for w in [1, 2, 4, 8, 16, 32]],
-    key=["N"],
-)
-@triton.jit
-def _layer_norm_fwd_kernel(...):
-    ...
-```
-
-### Residual in FP32
-
-Keep the residual stream in FP32 even during mixed-precision training. Prevents numerical drift in deep networks:
-
-```python
-class Block(nn.Module):
-    def __init__(self, ..., residual_in_fp32=True):
-        self.residual_in_fp32 = residual_in_fp32
-
-    def forward(self, hidden, residual=None):
-        # Fused norm handles fp32 residual internally
-        # Or manually:
-        if self.residual_in_fp32:
-            residual = residual.to(torch.float32) if residual is not None else None
-```
-
-### Custom Autograd with AMP
-
-When writing custom `torch.autograd.Function` that must work with mixed precision, use `@custom_fwd`/`@custom_bwd` and explicit dtype casting:
-
-```python
-from torch.cuda.amp import custom_fwd, custom_bwd
-
-class FusedOp(torch.autograd.Function):
-    @staticmethod
-    @custom_fwd
-    def forward(ctx, x, weight, bias):
-        # Explicitly cast to autocast dtype when autocast is active
-        if torch.is_autocast_enabled():
-            weight = weight.to(dtype=torch.get_autocast_gpu_dtype())
-        out = custom_cuda_kernel.fwd(x, weight, bias)
-        ctx.save_for_backward(x, weight, bias)
-        return out
-
-    @staticmethod
-    @custom_bwd
-    def backward(ctx, grad_out):
-        x, weight, bias = ctx.saved_tensors
-        return custom_cuda_kernel.bwd(grad_out, x, weight, bias)
-```
-
-Without `@custom_fwd`/`@custom_bwd`, custom ops silently run in FP32 inside autocast regions, killing throughput.
-
-### Multi-Tier Attention Fallback
-
-For custom attention (e.g. cross-attention with conditioning), use a 3-tier fallback:
-
-```python
-if hasattr(F, "scaled_dot_product_attention"):
-    ATTN_MODE = "flash"          # PyTorch 2.0+ (dispatches to FlashAttention2)
-else:
-    try:
-        import xformers.ops
-        ATTN_MODE = "xformers"   # xformers memory-efficient attention
-    except ImportError:
-        ATTN_MODE = "math"       # Naive O(N^2) fallback
-
-# In forward:
-if ATTN_MODE == "flash":
-    x = F.scaled_dot_product_attention(q, k, v)
-elif ATTN_MODE == "xformers":
-    x = xformers.ops.memory_efficient_attention(q, k, v)
-else:
-    attn = (q @ k.transpose(-2, -1)) * self.scale
-    x = attn.softmax(dim=-1) @ v
-```
-
-### Memory Layout & In-Place Operations
-
-CUDA kernels require contiguous memory. Enforce it after permutations, and prefer in-place ops to reduce allocations:
-
-```python
-# Enforce contiguous after index/permute ops (required by custom CUDA kernels)
-if x.stride(-1) != 1:
-    x = x.contiguous()
-
-# In-place ops reduce peak memory
-x = x.mul_(0.18215)          # Not x = x * 0.18215
-ema_param.mul_(decay).add_(param.data, alpha=1 - decay)  # EMA update
-```
-
-### Strategic `empty_cache()`
-
-Call before memory-intensive phases (FID sampling, evaluation) to reclaim the caching allocator pool:
-
-```python
-# Before evaluation/sampling that needs a large contiguous allocation
-torch.cuda.empty_cache()
-fid_samples = generate_samples(model, n=50000)
-torch.cuda.empty_cache()  # Reclaim after
-```
-
-Don't sprinkle `empty_cache()` in training loops — it forces CUDA to re-allocate and hurts throughput.
+Contiguous memory enforcement, in-place ops for peak memory reduction, strategic `empty_cache()` placement, and NVCC build flags.
+See [references/memory-optimization.md](references/memory-optimization.md) for all memory optimization patterns.
 
 ### Latent Space Training
 
-Pre-compute encoder/VAE features offline, then train on latents. Eliminates the encoder from the training loop entirely:
-
-```python
-# Offline pre-computation (run once, store as WebDataset shards)
-with torch.no_grad():
-    latent = vae.encode(image).latent_dist.sample().mul_(0.18215)
-    save_to_shard(latent, label)
-
-# Training loop — just load pre-computed latents
-for batch in latent_dataloader:
-    x = batch["latent"]  # Already encoded, no VAE forward pass
-    loss = model(x, condition)
-```
-
-Config pattern:
-```yaml
-data:
-  use_latent: true         # Load pre-computed latents
-  latent_scale: 0.18215    # SD VAE scaling factor
-training:
-  loader: webdataset       # Streaming for pre-computed shards
-```
-
-### NVCC Build Optimization
-
-When compiling custom CUDA extensions, use aggressive flags:
-
-```python
-# setup.py for custom CUDA kernels
-nvcc_flags = [
-    "-O3",                         # Maximum optimization
-    "--use_fast_math",             # Fast reciprocal/sqrt on GPU
-    "--threads", "4",              # Parallel compilation
-    "-U__CUDA_NO_HALF_OPERATORS__",      # Enable fp16 ops
-    "-U__CUDA_NO_BFLOAT16_OPERATORS__",  # Enable bf16 ops
-]
-```
-
-`--use_fast_math` trades strict IEEE compliance for speed — acceptable for training, verify for inference.
+Pre-compute encoder/VAE features offline and train on latents to skip the encoder entirely. Config-gate with `data.use_latent`.
+See [references/latent-space-training.md](references/latent-space-training.md) for offline pre-computation and config patterns.
 
 ## Quick Reference
 
@@ -362,3 +198,9 @@ nvcc_flags = [
 - **Missing `@custom_fwd`/`@custom_bwd`**: Custom autograd functions silently run in FP32 inside autocast, negating mixed-precision gains.
 - **Non-contiguous tensors to CUDA kernels**: Silent wrong results or crashes. Always check `stride(-1) == 1` or call `.contiguous()`.
 - **Running encoder during training when latents are available**: Pre-compute once, train on latents. The encoder adds zero learning signal.
+
+## See Also
+
+- `genai-evaluation-metrics` — Evaluation metrics during training (memory management)
+- `webdataset-streaming` — Latent-space data loading from tar shards
+- `wandb-experiment-tracking` — Logging acceleration state to W&B

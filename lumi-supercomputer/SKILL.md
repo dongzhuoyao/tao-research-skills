@@ -1,6 +1,6 @@
 ---
 name: lumi-supercomputer
-description: Use when running workloads on LUMI supercomputer, including GPU job submission, PyTorch with ROCm/AMD MI250X, container workflows, and LUMI-specific Slurm configuration.
+description: Use when running workloads on LUMI supercomputer, including GPU job submission, PyTorch with ROCm/AMD MI250X, container workflows, and LUMI-specific Slurm configuration. Triggers: "LUMI", "MI250X", "ROCm", "AMD GPU", "CSC", "LUMI-G"
 ---
 
 # LUMI Supercomputer
@@ -161,3 +161,8 @@ Key documentation sections:
 - User support: `https://lumi-supercomputer.eu/user-support`
 
 After finding useful new information, consider updating this skill's reference files so future sessions benefit.
+
+## See Also
+
+- `slurm-gpu-training` — General Slurm patterns (job submission, monitoring, preflight)
+- `gpu-training-acceleration` — ROCm-compatible acceleration techniques

@@ -1,6 +1,6 @@
 ---
 name: webdataset-streaming
-description: Use when streaming large datasets from tar shards with WebDataset, replacing file-based DataLoaders, or precomputing encoder latents into shards.
+description: Use when streaming large datasets from tar shards with WebDataset, replacing file-based DataLoaders, or precomputing encoder latents into shards. Triggers: "WebDataset", "tar shards", "wds", "streaming data", "ShardWriter", "latent shards"
 ---
 
 # WebDataset Streaming
@@ -11,6 +11,15 @@ description: Use when streaming large datasets from tar shards with WebDataset, 
 - Streaming precomputed encoder latents from tar shards
 - Replacing HuggingFace or file-based DataLoaders with streaming pipelines
 - Precomputing expensive encoder outputs into reusable shard archives
+
+## Workflow
+
+- [ ] **Preprocess**: Convert raw data to tar shards with `ShardWriter`
+- [ ] **Sizes**: Generate `sizes.json` for progress bars
+- [ ] **Verify**: Spot-check decoded samples from shards
+- [ ] **Configure**: Set `num_workers >= 4`, shuffle buffer, glob pattern
+- [ ] **Integrate**: Wire into training loop (skip `accelerator.prepare()` for WebDataset)
+- [ ] **Monitor**: Check GPU util stays > 90% (not flashing 0-100%)
 
 ## Core Concept
 
@@ -243,3 +252,8 @@ track_v2.json
 - **Shell globs in `wds.WebDataset()`**: WebDataset doesn't expand `*.tar`. Resolve with `glob.glob()` first.
 - **Shard shuffling with few shards**: With < 10 shards, `shardshuffle=True` gives poor randomization. Use sample-level `.shuffle(N)` instead.
 - **Forgetting `weights_only=False` for `.pth` loading**: `torch.load` defaults to `weights_only=True` in newer PyTorch, which rejects dict payloads. Explicitly set `weights_only=False` for latent shards.
+
+## See Also
+
+- `gpu-training-acceleration` — Latent-space training with pre-computed encoder features
+- `hf-dataset-management` — Data directory conventions and preflight verification

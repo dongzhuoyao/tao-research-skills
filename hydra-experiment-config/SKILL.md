@@ -1,6 +1,6 @@
 ---
 name: hydra-experiment-config
-description: Use when structuring ML experiment configs with Hydra, adding new config groups, or debugging config resolution. Applies to any project using Hydra for hyperparameter management.
+description: Use when structuring ML experiment configs with Hydra, adding new config groups, or debugging config resolution. Applies to any project using Hydra for hyperparameter management. Triggers: "Hydra", "config", "yaml config", "OmegaConf", "config groups", "defaults list", "config override"
 ---
 
 # Hydra Experiment Config
@@ -147,3 +147,8 @@ python train.py --multirun training.optim.lr=1e-4,3e-4,1e-3
 - **Checkpoint as config source**: Checkpoints may store config snapshots for diagnostics, but the YAML files are the authority for reproduction. Never load training config from a checkpoint to resume — use the original config file.
 - **Deeply nested overrides without aliases**: If users frequently override `training.optim.scheduler.warmup_steps`, provide a flat alias `training.warmup_steps`.
 - **Mixing config and argparse**: Choose one. Hydra replaces argparse entirely.
+
+## See Also
+
+- `fail-fast-ml-engineering` — Config as single source of truth, preflight validation
+- `wandb-experiment-tracking` — Logging resolved Hydra config to W&B at init

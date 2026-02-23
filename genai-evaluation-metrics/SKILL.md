@@ -1,6 +1,6 @@
 ---
 name: genai-evaluation-metrics
-description: Use when evaluating generative models — choosing metrics (FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi), setting up online or offline evaluation, feature extractor selection, distributed computation, memory management during sampling.
+description: Use when evaluating generative models — choosing metrics (FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi), setting up online or offline evaluation, feature extractor selection, distributed computation, memory management during sampling. Triggers: "FID", "IS", "KID", "inception score", "frechet", "LPIPS", "SSIM", "evaluation metrics", "generative evaluation", "FVD"
 ---
 
 # GenAI Evaluation Metrics
@@ -149,142 +149,25 @@ best_sfid = min(results["sfid"], best_sfid)
 best_dinov2_fid = min(results["dinov2_fid"], best_dinov2_fid)
 ```
 
-### sFID: Spatial Features from InceptionV3
+### sFID, FDD, FVD: Distribution Metric Implementations
 
-Uses intermediate spatial features (Mixed_6e layer) instead of global pool:
-
-```python
-class NoTrainInceptionV3(nn.Module):
-    def forward(self, x):
-        if "768" in self.features_list:
-            # Extract spatial features: [B, 768, 7, 7] -> [B, 2023]
-            features["768"] = x[:, :7, :, :].reshape(x.shape[0], -1).to(torch.float32)
-        return features
-
-class sFrechetInceptionDistance(Metric):
-    def __init__(self, feature=2023):
-        self.inception = NoTrainInceptionV3(features_list=["768"])
-```
-
-### FDD: DINOv2 as Feature Extractor
-
-Replace InceptionV3 with DINOv2 for more modern feature representations:
-
-```python
-class DINOv2Encoder(nn.Module):
-    def setup(self, arch="vitl14"):
-        self.model = torch.hub.load("facebookresearch/dinov2", f"dinov2_{arch}")
-
-    def transform(self, image):
-        image = TF.Resize((224, 224), TF.InterpolationMode.BICUBIC)(image)
-        return TF.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(image.float())
-
-class FrechetDinovDistance(Metric):
-    def __init__(self, feature=1024):  # DINOv2-ViT-L/14 output dim
-        self.inception = DINOv2Encoder()
-```
+sFID uses InceptionV3 spatial features (Mixed_6e), FDD uses DINOv2 ViT-L/14, FVD uses I3D for video.
+See [references/distribution-metrics.md](references/distribution-metrics.md) for implementation details.
 
 ### DINOv2 Multi-Metric (FID+KID+IS+PRDC in one pass)
 
-Compute multiple metrics in DINOv2 feature space using a single feature extraction:
+Compute FID, KID, IS, and PRDC in DINOv2 feature space with a single extraction pass.
+See [references/dinov2-multi-metric.md](references/dinov2-multi-metric.md) for implementation.
 
-```python
-class DinoV2_Metric(Metric):
-    def compute(self):
-        results = {}
-        results["dinov2_fid"] = compute_FD_with_reps(real_feats, fake_feats)
-        results["dinov2_kid"] = compute_mmd(real_feats, fake_feats).mean()
-        results["dinov2_is"] = compute_inception_score(fake_feats)
-        results.update({"dinov2_" + k: v
-            for k, v in compute_prdc(real_feats, fake_feats, nearest_k=5).items()})
-        return results
-```
+### PRDC, AuthPct, Vendi Score, FD-infinity
 
-Output: `dinov2_fid`, `dinov2_kid`, `dinov2_is`, `dinov2_precision`, `dinov2_recall`, `dinov2_density`, `dinov2_coverage`
+Diversity and memorization metrics: k-NN manifold overlap (PRDC), memorization detection (AuthPct), eigenvalue diversity (Vendi), and sample-size debiased FID (FD-infinity).
+See [references/diversity-memorization-metrics.md](references/diversity-memorization-metrics.md) for implementations.
 
-### FVD: Video Quality
+### Video Perceptual Metrics (FVD, LPIPS, SSIM, PSNR)
 
-Uses I3D model, requires minimum 10 frames:
-
-```python
-class FrechetVideoDistance(Metric):
-    def __init__(self, feature=400):
-        self.inception = VideoDetector()  # I3D TorchScript
-
-    def update(self, videos, real):
-        # Input: [B, T, H, W, C] float -> permute to [B, C, T, H, W]
-        videos = videos.permute(0, 4, 1, 2, 3)
-        features = self.inception(videos)
-```
-
-### PRDC: Precision, Recall, Density, Coverage
-
-Manifold-based metrics using k-NN in feature space:
-
-```python
-class PRDC(Metric):
-    def __init__(self, nearest_k=5):
-    def compute(self):
-        real_nn = compute_nearest_neighbour_distances(real_feats, self.nearest_k)
-        fake_nn = compute_nearest_neighbour_distances(fake_feats, self.nearest_k)
-        dist_rf = compute_pairwise_distance(real_feats, fake_feats)
-        precision = (dist_rf < real_nn[:, None]).any(axis=0).mean()   # Fidelity
-        recall    = (dist_rf < fake_nn[None, :]).any(axis=1).mean()   # Mode coverage
-        density   = (dist_rf < real_nn[:, None]).sum(axis=0).mean() / self.nearest_k
-        coverage  = (dist_rf.min(axis=1) < real_nn).mean()            # Support coverage
-```
-
-### AuthPct: Memorization Detection
-
-Detects if generated samples are copies of training data:
-
-```python
-def compute_authpct(train_feat, gen_feat):
-    real_dists = torch.cdist(train_feat, train_feat)
-    real_dists.fill_diagonal_(float("inf"))
-    gen_dists = torch.cdist(train_feat, gen_feat)
-    # For each fake: is its nearest real neighbor closer to another real than to this fake?
-    authen = real_min_dists.values[gen_min_dists.indices] < gen_min_dists.values
-    return (100 * torch.sum(authen) / len(authen)).item()
-```
-
-### Vendi Score: Diversity
-
-Diversity via eigenvalue entropy of feature similarity matrix:
-
-```python
-def compute_vendi_score(X, q=1, normalize=True):
-    X = preprocessing.normalize(X, axis=1)
-    S = X @ X.T
-    w = scipy.linalg.eigvalsh(S / len(X))
-    return np.exp(entropy_q(w, q=q))
-```
-
-### FD-infinity: Sample-Size Debiased FID
-
-Extrapolates FID to infinite sample count via linear regression:
-
-```python
-def compute_FD_infinity(reps1, reps2, num_points=15):
-    fd_batches = np.linspace(len(reps2)//10, len(reps2), num_points).astype(int)
-    fds = [compute_FD(reps1, reps2[rng.choice(len(reps2), n)]) for n in fd_batches]
-    reg = LinearRegression().fit(1/fd_batches.reshape(-1, 1), fds)
-    return reg.predict([[0]])[0, 0]  # FD at 1/N -> 0
-```
-
-### Video Perceptual Metrics
-
-Frame-by-frame LPIPS and SSIM for video:
-
-```python
-# LPIPS (lower = more similar)
-loss_fn = lpips.LPIPS(net='alex', spatial=True)
-for t in range(num_frames):
-    score = loss_fn(video1[:, t] * 2 - 1, video2[:, t] * 2 - 1)  # input: [-1,1]
-
-# SSIM (higher = more similar)
-# 11x11 Gaussian window, sigma=1.5, C1=0.01^2, C2=0.03^2
-```
+Frame-by-frame perceptual metrics for video evaluation using I3D, AlexNet, and structural similarity.
+See [references/video-perceptual-metrics.md](references/video-perceptual-metrics.md) for implementation details.
 
 ## Feature Extractor Selection Guide
 
@@ -349,3 +232,8 @@ Key rules:
 - **InceptionV3 for everything**: Consider DINOv2 (FDD) for modern benchmarks, I3D for video (FVD).
 - **Ignoring memorization**: High-quality samples may be copied from training data. Add AuthPct or CT score.
 - **FID at >=32 GPUs without workaround**: torchmetrics sync bug. Cap samples or verify manually.
+
+## See Also
+
+- `gpu-training-acceleration` — Memory management during evaluation sampling
+- `wandb-experiment-tracking` — Logging evaluation metrics to W&B

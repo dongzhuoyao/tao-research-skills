@@ -1,6 +1,6 @@
 ---
 name: wandb-experiment-tracking
-description: Use when integrating W&B experiment tracking into ML training pipelines, including logging strategy, run configuration, and online/offline mode management.
+description: Use when integrating W&B experiment tracking into ML training pipelines, including logging strategy, run configuration, and online/offline mode management. Triggers: "W&B", "wandb", "weights and biases", "experiment logging", "wandb.log", "wandb.init", "training dashboard"
 ---
 
 # W&B Experiment Tracking
@@ -253,3 +253,9 @@ print(run.history())        # time-series metrics as DataFrame
 - **Using `memory_allocated()` for GPU monitoring**: This shows ~5 GB when `nvidia-smi` shows ~58 GB. Use `memory_reserved()` for the number that matches system tools.
 - **Hardcoded `WANDB_MODE`**: Make it configurable. Default to online, let users override to offline via env var or config.
 - **Logging every step**: Batch logging every step floods W&B. Log every N steps (e.g., every 10 or 100).
+
+## See Also
+
+- `slurm-gpu-training` — Slurm job ID in W&B run names, monitoring patterns
+- `ml-ablation-design` — Grouping ablation variant runs in W&B
+- `hydra-experiment-config` — Logging resolved Hydra config at init

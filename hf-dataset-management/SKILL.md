@@ -1,6 +1,6 @@
 ---
 name: hf-dataset-management
-description: Use when curating, uploading, or managing HuggingFace datasets for ML training, including offline caching, preflight verification, and data directory conventions.
+description: Use when curating, uploading, or managing HuggingFace datasets for ML training, including offline caching, preflight verification, and data directory conventions. Triggers: "HuggingFace", "datasets", "push_to_hub", "load_dataset", "HF Hub", "dataset cache"
 ---
 
 # HuggingFace Dataset Management
@@ -120,3 +120,9 @@ chords = sample["chord_layer_basic"]
 - **Uploading without verification**: Always round-trip test: upload, then download and check counts.
 - **Committing data to git**: Add `data/` to `.gitignore`. Use HF Hub or shared filesystem for data distribution.
 - **Ignoring `num_workers` for WebDataset**: `num_workers: 0` causes data-starved GPU (GPU util flashing 0-100%). Use at least 4 workers.
+
+## See Also
+
+- `webdataset-streaming` — For large-scale datasets that exceed HF's default format
+- `slurm-gpu-training` — Offline-first caching strategy for HPC clusters
+- `fail-fast-ml-engineering` — Preflight verification before training

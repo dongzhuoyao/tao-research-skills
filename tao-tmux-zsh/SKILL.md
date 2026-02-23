@@ -1,6 +1,6 @@
 ---
 name: tao-tmux-zsh
-description: Use when setting up terminal environment on a new machine, restoring tmux/zsh dotfiles, or looking up tmux key bindings and zsh configuration.
+description: Use when setting up terminal environment on a new machine, restoring tmux/zsh dotfiles, or looking up tmux key bindings and zsh configuration. Triggers: "tmux", "zsh", "Oh My Zsh", "terminal setup", "dotfiles"
 ---
 
 # Tao's Tmux + ZSH Configuration
