@@ -1,6 +1,14 @@
+<div align="center">
+
 # tao-research-skills
 
-Reusable Claude Code skills for ML research workflows. Distilled from real training pipelines.
+**Battle-tested Claude Code skills for ML research workflows.**
+
+*Distilled from real training pipelines on A100/H100 clusters.*
+
+[![Skills](https://img.shields.io/badge/skills-11-blue)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+
+</div>
 
 ## Installation
 
@@ -26,6 +34,9 @@ Then append the following to CLAUDE.md under a "### Shared skills" section:
 - `lumi-supercomputer`: LUMI supercomputer, AMD MI250X/ROCm GPU jobs, PyTorch containers.
 - `snellius-supercomputer`: SURF Snellius supercomputer, NVIDIA A100/H100 GPU jobs, conda/venv setup.
 - `tao-tmux-zsh`: Personal tmux + zsh dotfiles, Gruvbox theme, vim-style bindings, Oh My Zsh.
+
+Also check for upstream updates daily by running:
+cd skills/shared && git pull origin main && cd ../..
 ```
 
 Or run it directly:
