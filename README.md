@@ -2,11 +2,11 @@
 
 # tao-research-skills
 
-**Battle-tested Claude Code skills for ML research workflows.**
+**Battle-tested agent skills for ML research workflows.**
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-13-blue)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-13-blue)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)]() [![Codex](https://img.shields.io/badge/Codex-compatible-orange)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -16,14 +16,14 @@
 
 ### One-prompt install (recommended)
 
-Copy this into your project's `CLAUDE.md` and Claude will set everything up:
+Copy the prompt below into your `CLAUDE.md` (for Claude Code) or `AGENTS.md` (for Codex), and the agent will set everything up:
 
 ```
 Add tao-research-skills as a git submodule and register all skills:
 
 git submodule add https://github.com/dongzhuoyao/tao-research-skills.git skills/shared
 
-Then append the following to CLAUDE.md under a "### Shared skills" section:
+Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills" section:
 
 - `hydra-experiment-config`: Hydra config patterns, hierarchical groups, flat aliases.
 - `slurm-gpu-training`: HPC/Slurm job submission, offline-first, conda init.
@@ -65,7 +65,7 @@ Then reference in your `CLAUDE.md`:
 
 ## How It Works
 
-Each skill is a self-contained `SKILL.md` with YAML frontmatter. Claude Code automatically loads the right skill based on **trigger keywords** in the description — no manual invocation needed.
+Each skill is a self-contained `SKILL.md` with YAML frontmatter — the [open agent skills format](https://github.com/anthropics/skills) supported by both **Claude Code** and **Codex**.
 
 ```
 skill-name/
@@ -73,9 +73,11 @@ skill-name/
   references/           # (optional) Detailed docs for progressive disclosure
 ```
 
-**Trigger keywords** — Skills include specific terms (e.g., `"sbatch"`, `"FID"`, `"torch.compile"`) so Claude matches them to your task automatically.
+**Compatible agents** — Skills use the standard `name` + `description` frontmatter, so they work with Claude Code (`.claude/skills/`), Codex (`.agents/skills/`), and any agent that follows the open skills spec.
 
-**Progressive disclosure** — Large skills keep a concise overview in `SKILL.md` and link to `references/` for deep dives, so Claude only loads what it needs.
+**Trigger keywords** — Descriptions include specific terms (e.g., `"sbatch"`, `"FID"`, `"torch.compile"`) so the agent matches them to your task automatically.
+
+**Progressive disclosure** — Large skills keep a concise overview in `SKILL.md` and link to `references/` for deep dives, so the agent only loads what it needs.
 
 **Cross-references** — Each skill has a `See Also` section linking related skills for easy navigation.
 
