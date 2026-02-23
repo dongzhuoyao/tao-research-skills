@@ -1,29 +1,27 @@
 ---
-name: tao-tmux-zsh
-description: Use when setting up terminal environment on a new machine, restoring tmux/zsh dotfiles, or looking up tmux key bindings and zsh configuration. Triggers: "tmux", "zsh", "Oh My Zsh", "terminal setup", "dotfiles"
+name: tmux
+description: Use when setting up tmux on a new machine, looking up key bindings, debugging terminal colors, or restoring tmux dotfiles. Triggers: "tmux", "terminal multiplexer", "tmux.conf", "pane", "window split", "copy mode", "prefix key"
 ---
 
-# Tao's Tmux + ZSH Configuration
+# Tmux Configuration
 
-Personal dotfiles for a consistent terminal environment across machines (Snellius, LUMI, personal).
+Personal tmux dotfiles for a consistent terminal environment across machines (Snellius, LUMI, personal).
 
 ## When to Use
 
-- Setting up tmux + zsh on a new machine or server
-- Restoring terminal configuration after a reinstall
+- Setting up tmux on a new machine or server
+- Restoring tmux configuration after a reinstall
 - Looking up tmux key bindings or copy-mode commands
 - Debugging terminal color or clipboard issues
-- Configuring Oh My Zsh on a remote server
 
 ## Quick Reference
 
 | Fact | Value |
 |------|-------|
 | Repo | `git@github.com:dongzhuoyao/tao-tmux-zsh.git` |
-| Tmux prefix | `C-b` (default) + `C-a` (secondary, Screen-compatible) |
+| Prefix | `C-b` (default) + `C-a` (secondary, Screen-compatible) |
 | Theme | Gruvbox dark (self-contained, no TPM needed) |
 | Config size | ~200 lines of pure tmux config |
-| ZSH framework | Oh My Zsh with `robbyrussell` theme |
 | Scrollback | 50,000 lines |
 | True color | Yes (24-bit) |
 | Mouse | Toggleable with `prefix + m` |
@@ -32,22 +30,16 @@ Personal dotfiles for a consistent terminal environment across machines (Snelliu
 ## Installation
 
 ```bash
-# 1. Prerequisites
-# Install Oh My Zsh (if not already present)
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# 2. Clone
+# Clone
 git clone git@github.com:dongzhuoyao/tao-tmux-zsh.git ~/tao-tmux-zsh
 
-# 3. Backup existing configs
-[ -f ~/.zshrc ] && mv ~/.zshrc ~/.zshrc.bak
+# Backup existing config
 [ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.bak
 
-# 4. Symlink
-ln -sf ~/tao-tmux-zsh/zshrc ~/.zshrc
+# Symlink
 ln -sf ~/tao-tmux-zsh/tmux.conf ~/.tmux.conf
 
-# 5. Reload (if tmux is already running)
+# Reload (if tmux is already running)
 tmux source-file ~/.tmux.conf
 ```
 
@@ -85,18 +77,7 @@ All bindings use the prefix key (`C-b` or `C-a`) unless noted.
 
 macOS clipboard integration available via `prefix + y`.
 
-## ZSH Configuration
-
-| Setting | Value |
-|---------|-------|
-| Framework | Oh My Zsh |
-| Theme | `robbyrussell` |
-| Plugins | `git` |
-| PATH additions | `~/.local/bin`, `~/.opencode/bin` |
-| Conda | Miniconda3 initialization (if installed) |
-| Cursor | Blinking cursor enabled (for Termius) |
-
-## Tmux Features
+## Features
 
 - **Gruvbox dark theme**: Self-contained color scheme, no plugin manager (TPM) needed
 - **Mouse support**: Toggle with `prefix + m` — useful for scrolling and pane selection
@@ -107,29 +88,12 @@ macOS clipboard integration available via `prefix + y`.
 
 ## Common Tasks
 
-### Set up a new remote server
-
-```bash
-# SSH in, then:
-sudo apt install tmux zsh  # or: yum install tmux zsh
-chsh -s $(which zsh)       # set zsh as default shell (re-login required)
-
-# Install Oh My Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Clone and symlink
-git clone git@github.com:dongzhuoyao/tao-tmux-zsh.git ~/tao-tmux-zsh
-ln -sf ~/tao-tmux-zsh/zshrc ~/.zshrc
-ln -sf ~/tao-tmux-zsh/tmux.conf ~/.tmux.conf
-```
-
 ### Reload config after edits
 
 ```bash
 # Inside tmux: prefix + r
 # Or from shell:
 tmux source-file ~/.tmux.conf
-source ~/.zshrc
 ```
 
 ### Update dotfiles
@@ -137,23 +101,16 @@ source ~/.zshrc
 ```bash
 cd ~/tao-tmux-zsh && git pull
 tmux source-file ~/.tmux.conf
-source ~/.zshrc
 ```
-
-## Dependencies
-
-| Dependency | Required | Install |
-|------------|----------|---------|
-| tmux 2.6+ | Yes | `apt install tmux` / `yum install tmux` |
-| Oh My Zsh | Yes | `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"` |
-| Miniconda3 | Optional | [miniconda docs](https://docs.conda.io/en/latest/miniconda.html) |
 
 ## Troubleshooting
 
 | Issue | Fix |
 |-------|-----|
 | Colors look wrong | Ensure terminal supports true color; check `echo $TERM` shows `xterm-256color` or similar |
-| Conda not found after setup | Re-source: `source ~/.zshrc` or check Miniconda3 is installed at `~/miniconda3` |
 | Clipboard not working (macOS) | Install `reattach-to-user-namespace`: `brew install reattach-to-user-namespace` |
 | Tmux config not loading | Verify symlink: `ls -la ~/.tmux.conf` should point to `~/tao-tmux-zsh/tmux.conf` |
-| Oh My Zsh not found | Re-run the Oh My Zsh installer; check `~/.oh-my-zsh/` exists |
+
+## See Also
+
+- `zsh` — Companion zsh configuration from the same dotfiles repo
