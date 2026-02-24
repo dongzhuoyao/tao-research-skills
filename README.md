@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-15-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-16-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -40,6 +40,7 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `zsh`: ZSH + Oh My Zsh dotfiles, conda init, PATH config.
 - `github-cli`: GitHub CLI (`gh`) patterns, `gh api`, PRs, issues, releases.
 - `agents-md-writing`: Writing effective CLAUDE.md/AGENTS.md files, project memory patterns, workflow rules.
+- `vercel-cost-optimization`: Vercel cost optimization, ISR-breaking patterns, function constraints, caching.
 
 Also check for upstream updates daily by running:
 cd skills/shared && git pull origin main && cd ../..
@@ -130,6 +131,12 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | [slurm-gpu-training](slurm-gpu-training/) | Running GPU training on HPC/Slurm: offline-first, preflight checks, conda init, job monitoring |
 | [lumi-supercomputer](lumi-supercomputer/) | LUMI supercomputer: AMD MI250X/ROCm GPU jobs, PyTorch containers, Slingshot network |
 | [snellius-supercomputer](snellius-supercomputer/) | SURF Snellius supercomputer: NVIDIA A100/H100 GPU jobs, conda/venv setup |
+
+### Deployment & Cost
+
+| Skill | Description |
+|-------|-------------|
+| [vercel-cost-optimization](vercel-cost-optimization/) | Vercel cost optimization: ISR-breaking patterns, function constraints, Cache-Control headers, Fluid Compute, build minutes |
 
 ### Dev Environment
 
