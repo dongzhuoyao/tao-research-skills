@@ -2,11 +2,11 @@
 
 # tao-research-skills
 
-**Battle-tested agent skills for ML research workflows.**
+**Battle-tested agent skills for ML research & iOS development workflows.**
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-16-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-17-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -41,6 +41,7 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `github-cli`: GitHub CLI (`gh`) patterns, `gh api`, PRs, issues, releases.
 - `agents-md-writing`: Writing effective CLAUDE.md/AGENTS.md files, project memory patterns, workflow rules.
 - `vercel-cost-optimization`: Vercel cost optimization, ISR-breaking patterns, function constraints, caching.
+- `ios-swiftui-app`: iOS SwiftUI app patterns, UIKit bridging, SSH terminal, voice input, xcodegen + SPM.
 
 Also check for upstream updates daily by running:
 cd skills/shared && git pull origin main && cd ../..
@@ -137,6 +138,12 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | Skill | Description |
 |-------|-------------|
 | [vercel-cost-optimization](vercel-cost-optimization/) | Vercel cost optimization: ISR-breaking patterns, function constraints, Cache-Control headers, Fluid Compute, build minutes |
+
+### iOS & Mobile
+
+| Skill | Description |
+|-------|-------------|
+| [ios-swiftui-app](ios-swiftui-app/) | iOS SwiftUI app development: UIKit bridging, SSH terminal (Citadel/SwiftTerm), voice input STT pipeline, @MainActor services, xcodegen + SPM, Keychain storage |
 
 ### Dev Environment
 
