@@ -272,6 +272,21 @@ These are proven patterns for steering agent behavior. Copy what fits your workf
 - Iterate on lessons until the mistake rate drops
 ```
 
+### Task Management Cycle
+
+A sequenced workflow that ties the above patterns together:
+
+```markdown
+### Task Management
+1. **Plan First**: Write plan with checkable items (→ Plan Before Build)
+2. **Verify Plan**: Check in with user before starting implementation
+3. **Track Progress**: Mark items complete as you go, explain changes at each step
+4. **Verify Work**: Run tests, check logs, demonstrate correctness (→ Verification Before Done)
+5. **Capture Lessons**: Update memory after corrections (→ Self-Improvement Loop)
+```
+
+This gives the agent a repeatable loop for any non-trivial task.
+
 ## Anti-Patterns
 
 | Don't | Do Instead |
