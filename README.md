@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-14-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-15-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -39,6 +39,7 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `tmux`: Tmux dotfiles, Gruvbox theme, vim-style bindings, copy mode.
 - `zsh`: ZSH + Oh My Zsh dotfiles, conda init, PATH config.
 - `github-cli`: GitHub CLI (`gh`) patterns, `gh api`, PRs, issues, releases.
+- `agents-md-writing`: Writing effective CLAUDE.md/AGENTS.md files, project memory patterns, workflow rules.
 
 Also check for upstream updates daily by running:
 cd skills/shared && git pull origin main && cd ../..
@@ -120,6 +121,7 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | Skill | Description |
 |-------|-------------|
 | [fail-fast-ml-engineering](fail-fast-ml-engineering/) | No silent fallbacks, explicit errors, config as single source of truth, preflight patterns |
+| [agents-md-writing](agents-md-writing/) | Writing effective CLAUDE.md / AGENTS.md: section structure, memory patterns, workflow rules, anti-patterns |
 
 ### HPC & Supercomputers
 
