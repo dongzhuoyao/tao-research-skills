@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-17-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-18-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -42,6 +42,7 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `agents-md-writing`: Writing effective CLAUDE.md/AGENTS.md files, project memory patterns, workflow rules.
 - `vercel-cost-optimization`: Vercel cost optimization, ISR-breaking patterns, function constraints, caching.
 - `ios-swiftui-app`: iOS SwiftUI app patterns, UIKit bridging, SSH terminal, voice input, xcodegen + SPM.
+- `claude-code-config`: Claude Code setup — permissions, statusline, plugins, settings.json.
 
 Also check for upstream updates daily by running:
 cd skills/shared && git pull origin main && cd ../..
@@ -152,6 +153,7 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | [tmux](tmux/) | Tmux dotfiles: Gruvbox theme, vim-style bindings, copy mode, mouse toggle |
 | [zsh](zsh/) | ZSH + Oh My Zsh: robbyrussell theme, conda init, PATH config |
 | [github-cli](github-cli/) | GitHub CLI (`gh`): `gh api`, PRs, issues, releases, replacing WebFetch for GitHub URLs |
+| [claude-code-config](claude-code-config/) | Claude Code setup: permissions, statusline script, plugins (superpowers, code-simplifier, ralph-loop), settings.json |
 
 ---
 

@@ -69,7 +69,6 @@ Do **not** use markdown link style (`[name](../path/)`).
 
 ## Known Issues
 
-- `claude-code-config` is missing from README (badge, install block, table)
 - `vercel-cost-optimization` uses markdown link style in See Also instead of backtick style
 
 ## Commits
