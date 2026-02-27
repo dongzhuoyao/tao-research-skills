@@ -1,6 +1,10 @@
 ---
 name: wandb-experiment-tracking
-description: Use when integrating W&B experiment tracking into ML training pipelines, including logging strategy, run configuration, and online/offline mode management. Triggers: "W&B", "wandb", "weights and biases", "experiment logging", "wandb.log", "wandb.init", "training dashboard"
+description: >-
+  Use when integrating W&B experiment tracking into ML training pipelines,
+  including logging strategy, run configuration, and online/offline mode
+  management. Triggers: "W&B", "wandb", "weights and biases", "experiment
+  logging", "wandb.log", "wandb.init", "training dashboard"
 ---
 
 # W&B Experiment Tracking

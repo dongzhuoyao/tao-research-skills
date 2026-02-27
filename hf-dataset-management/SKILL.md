@@ -1,6 +1,10 @@
 ---
 name: hf-dataset-management
-description: Use when curating, uploading, or managing HuggingFace datasets for ML training, including offline caching, preflight verification, and data directory conventions. Triggers: "HuggingFace", "datasets", "push_to_hub", "load_dataset", "HF Hub", "dataset cache"
+description: >-
+  Use when curating, uploading, or managing HuggingFace datasets for ML
+  training, including offline caching, preflight verification, and data
+  directory conventions. Triggers: "HuggingFace", "datasets", "push_to_hub",
+  "load_dataset", "HF Hub", "dataset cache"
 ---
 
 # HuggingFace Dataset Management

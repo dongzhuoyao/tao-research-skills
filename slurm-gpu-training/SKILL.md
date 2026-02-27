@@ -1,6 +1,10 @@
 ---
 name: slurm-gpu-training
-description: Use when running ML training on HPC clusters with Slurm, including job submission, environment setup, monitoring, and failure triage. Applies to any GPU training workload on Slurm-managed clusters. Triggers: "sbatch", "srun", "Slurm", "SBATCH", "job submission", "HPC", "cluster", "walltime", "squeue"
+description: >-
+  Use when running ML training on HPC clusters with Slurm, including job
+  submission, environment setup, monitoring, and failure triage. Applies to any
+  GPU training workload on Slurm-managed clusters. Triggers: "sbatch", "srun",
+  "Slurm", "SBATCH", "job submission", "HPC", "cluster", "walltime", "squeue"
 ---
 
 # Slurm GPU Training

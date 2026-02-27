@@ -1,6 +1,11 @@
 ---
 name: fail-fast-ml-engineering
-description: Use when designing ML training pipelines, data loaders, or inference systems. Enforces engineering discipline — no silent fallbacks, explicit errors on critical paths, config as single source of truth. Triggers: "silent failure", "fallback", "preflight", "assertion", "error handling", "fail fast", "config truth"
+description: >-
+  Use when designing ML training pipelines, data loaders, or inference systems.
+  Enforces engineering discipline — no silent fallbacks, explicit errors on
+  critical paths, config as single source of truth. Triggers: "silent failure",
+  "fallback", "preflight", "assertion", "error handling", "fail fast", "config
+  truth"
 ---
 
 # Fail-Fast ML Engineering
