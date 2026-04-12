@@ -32,6 +32,7 @@ description: Use when <scenario>. <Scope summary>. Triggers: "keyword1", "keywor
 - `name` matches directory name exactly (kebab-case)
 - `description` is a single line — opens with `Use when ...`, ends with a `Triggers:` list
 - Triggers are comma-separated, each in double quotes
+- **`description` MUST be double-quoted** in YAML — unquoted colons (e.g. `Triggers:`) cause parse errors and skills silently fail to load. Escape internal quotes: `description: "Use when ... Triggers: \"kw1\", \"kw2\""`
 
 ### Sections
 
