@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-18-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-20-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -40,6 +40,8 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `zsh`: ZSH + Oh My Zsh dotfiles, conda init, PATH config.
 - `github-cli`: GitHub CLI (`gh`) patterns, `gh api`, PRs, issues, releases.
 - `agents-md-writing`: Writing effective CLAUDE.md/AGENTS.md files, project memory patterns, workflow rules.
+- `memory-sync`: One canonical Markdown memory file for Codex + Claude Code, generated AGENTS.md/CLAUDE.md wrappers, drift checks.
+- `mem-init`: Bootstrap project memory plus a starter README.md for new repos.
 - `vercel-cost-optimization`: Vercel cost optimization, ISR-breaking patterns, function constraints, caching.
 - `ios-swiftui-app`: iOS SwiftUI app patterns, UIKit bridging, SSH terminal, voice input, xcodegen + SPM.
 - `claude-code-config`: Claude Code setup — permissions, statusline, plugins, settings.json.
@@ -125,6 +127,8 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 |-------|-------------|
 | [fail-fast-ml-engineering](fail-fast-ml-engineering/) | No silent fallbacks, explicit errors, config as single source of truth, preflight patterns |
 | [agents-md-writing](agents-md-writing/) | Writing effective CLAUDE.md / AGENTS.md: section structure, memory patterns, workflow rules, anti-patterns |
+| [memory-sync](memory-sync/) | One canonical Markdown memory file for Codex + Claude Code, generated AGENTS.md and CLAUDE.md, drift checks |
+| [mem-init](mem-init/) | Bootstrap shared project memory and a starter README.md for a new repository |
 
 ### HPC & Supercomputers
 
