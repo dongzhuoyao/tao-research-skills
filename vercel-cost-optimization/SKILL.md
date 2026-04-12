@@ -275,5 +275,5 @@ curl -sI --cookie "NEXT_LOCALE=zh" https://site.com/ | grep -i 'content-language
 
 ## See Also
 
-- [fail-fast-ml-engineering](../fail-fast-ml-engineering/) — General engineering discipline
-- [agents-md-writing](../agents-md-writing/) — Documenting deployment patterns in CLAUDE.md
+- `fail-fast-ml-engineering` — General engineering discipline
+- `agents-md-writing` — Documenting deployment patterns in CLAUDE.md

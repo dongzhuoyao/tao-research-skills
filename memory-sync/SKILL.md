@@ -1,6 +1,6 @@
 ---
 name: memory-sync
-description: "Set up and maintain shared project memory across Codex and Claude Code using one canonical Markdown source. Use when a repo should keep a single memory file in sync with generated AGENTS.md and a thin CLAUDE.md wrapper, or when memory drift needs to be checked or repaired."
+description: "Use when a repo should keep a single memory file in sync with generated AGENTS.md and a thin CLAUDE.md wrapper, or when memory drift needs to be checked or repaired. Triggers: \"memory-sync\", \"sync memory\", \"AGENTS.md drift\", \"CLAUDE.md drift\""
 ---
 
 # Memory Sync
@@ -70,3 +70,9 @@ python scripts/memory_sync.py check --repo /path/to/repo
 ```
 
 Success means the generated files match the canonical source.
+
+## See Also
+
+- `mem-init` — Bootstrap project memory files from scratch (complementary to sync)
+- `meta-init` — Install tao-research-skills globally across platforms
+- `agents-md-writing` — Patterns for writing effective CLAUDE.md/AGENTS.md

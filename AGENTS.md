@@ -60,6 +60,16 @@ Do **not** use markdown link style (`[name](../path/)`).
 - One focused sub-topic per file
 - Linked from `SKILL.md` with relative paths
 
+### Standalone Principle
+
+Each skill must be fully self-contained and loadable independently:
+
+- Valid YAML frontmatter (double-quoted `description`, `name` matches directory)
+- `description` starts with `Use when` and ends with `Triggers:` list
+- Has `## When to Use` (or `## Use This Skill When`) section
+- Has `## See Also` section using backtick style
+- No broken references — all `references/` links point to existing files
+
 ## Adding a Skill
 
 1. Create `<skill-name>/SKILL.md` with proper frontmatter
@@ -72,7 +82,7 @@ Do **not** use markdown link style (`[name](../path/)`).
 
 ## Known Issues
 
-- `vercel-cost-optimization` uses markdown link style in See Also instead of backtick style
+(none)
 
 ## Verification
 
