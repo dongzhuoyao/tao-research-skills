@@ -1,6 +1,6 @@
 ---
 name: genai-evaluation-metrics
-description: Use when evaluating generative models — choosing metrics (FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi), setting up online or offline evaluation, feature extractor selection, distributed computation, memory management during sampling. Triggers: "FID", "IS", "KID", "inception score", "frechet", "LPIPS", "SSIM", "evaluation metrics", "generative evaluation", "FVD"
+description: "Use when evaluating generative models — choosing metrics (FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi), setting up online or offline evaluation, feature extractor selection, distributed computation, memory management during sampling. Triggers: \"FID\", \"IS\", \"KID\", \"inception score\", \"frechet\", \"LPIPS\", \"SSIM\", \"evaluation metrics\", \"generative evaluation\", \"FVD\""
 ---
 
 # GenAI Evaluation Metrics

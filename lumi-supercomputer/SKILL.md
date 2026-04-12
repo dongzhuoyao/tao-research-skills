@@ -1,6 +1,6 @@
 ---
 name: lumi-supercomputer
-description: Use when running workloads on LUMI supercomputer, including GPU job submission, PyTorch with ROCm/AMD MI250X, container workflows, and LUMI-specific Slurm configuration. Triggers: "LUMI", "MI250X", "ROCm", "AMD GPU", "CSC", "LUMI-G"
+description: "Use when running workloads on LUMI supercomputer, including GPU job submission, PyTorch with ROCm/AMD MI250X, container workflows, and LUMI-specific Slurm configuration. Triggers: \"LUMI\", \"MI250X\", \"ROCm\", \"AMD GPU\", \"CSC\", \"LUMI-G\""
 ---
 
 # LUMI Supercomputer

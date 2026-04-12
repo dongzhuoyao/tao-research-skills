@@ -1,6 +1,6 @@
 ---
 name: ml-ablation-design
-description: Use when designing ablation studies to compare model components, loss functions, or architectural choices. Covers synthetic data experiments, variant loops, production metrics, and W&B grouping. Triggers: "ablation", "ablation study", "variant comparison", "controlled experiment", "synthetic data experiment"
+description: "Use when designing ablation studies to compare model components, loss functions, or architectural choices. Covers synthetic data experiments, variant loops, production metrics, and W&B grouping. Triggers: \"ablation\", \"ablation study\", \"variant comparison\", \"controlled experiment\", \"synthetic data experiment\""
 ---
 
 # ML Ablation Design

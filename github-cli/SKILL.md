@@ -1,6 +1,6 @@
 ---
 name: github-cli
-description: Use when interacting with GitHub repos, PRs, issues, releases, or API data. Covers gh CLI usage patterns, authentication, and common queries. Triggers: "gh", "github", "pull request", "PR", "issue", "gh api", "gh pr", "gh issue", "github release"
+description: "Use when interacting with GitHub repos, PRs, issues, releases, or API data. Covers gh CLI usage patterns, authentication, and common queries. Triggers: \"gh\", \"github\", \"pull request\", \"PR\", \"issue\", \"gh api\", \"gh pr\", \"gh issue\", \"github release\""
 ---
 
 # GitHub CLI (`gh`)

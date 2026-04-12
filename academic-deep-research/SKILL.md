@@ -1,6 +1,6 @@
 ---
 name: academic-deep-research
-description: Use when evaluating academic papers or surveying a research topic. Gathers venue, citations, GitHub stats, social buzz, reproducibility, and author signals to produce a scored markdown report. Triggers: "evaluate paper", "paper review", "research survey", "literature review", "is this paper good", "find papers on", "compare papers", "paper impact"
+description: "Use when evaluating academic papers or surveying a research topic. Gathers venue, citations, GitHub stats, social buzz, reproducibility, and author signals to produce a scored markdown report. Triggers: \"evaluate paper\", \"paper review\", \"research survey\", \"literature review\", \"is this paper good\", \"find papers on\", \"compare papers\", \"paper impact\""
 ---
 
 # Academic Deep Research

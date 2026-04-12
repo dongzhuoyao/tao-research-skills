@@ -1,6 +1,6 @@
 ---
 name: tmux
-description: Use when setting up tmux on a new machine, looking up key bindings, debugging terminal colors, or restoring tmux dotfiles. Triggers: "tmux", "terminal multiplexer", "tmux.conf", "pane", "window split", "copy mode", "prefix key"
+description: "Use when setting up tmux on a new machine, looking up key bindings, debugging terminal colors, or restoring tmux dotfiles. Triggers: \"tmux\", \"terminal multiplexer\", \"tmux.conf\", \"pane\", \"window split\", \"copy mode\", \"prefix key\""
 ---
 
 # Tmux Configuration

@@ -1,6 +1,6 @@
 ---
 name: hydra-experiment-config
-description: Use when structuring ML experiment configs with Hydra, adding new config groups, or debugging config resolution. Applies to any project using Hydra for hyperparameter management. Triggers: "Hydra", "config", "yaml config", "OmegaConf", "config groups", "defaults list", "config override"
+description: "Use when structuring ML experiment configs with Hydra, adding new config groups, or debugging config resolution. Applies to any project using Hydra for hyperparameter management. Triggers: \"Hydra\", \"config\", \"yaml config\", \"OmegaConf\", \"config groups\", \"defaults list\", \"config override\""
 ---
 
 # Hydra Experiment Config

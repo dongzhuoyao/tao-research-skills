@@ -1,6 +1,6 @@
 ---
 name: ios-swiftui-app
-description: Use when building iOS apps with SwiftUI, UIKit bridging, SSH terminal integration, or voice input pipelines. Applies to Swift 5.9+/iOS 17+ projects using SPM, xcodegen, Citadel, SwiftTerm, or AVFoundation. Triggers: "SwiftUI", "UIViewRepresentable", "ObservableObject", "@MainActor", "xcodegen", "SwiftTerm", "Citadel", "SSH", "STT", "AVAudioEngine", "iOS app", "terminal emulator", "voice input"
+description: "Use when building iOS apps with SwiftUI, UIKit bridging, SSH terminal integration, or voice input pipelines. Applies to Swift 5.9+/iOS 17+ projects using SPM, xcodegen, Citadel, SwiftTerm, or AVFoundation. Triggers: \"SwiftUI\", \"UIViewRepresentable\", \"ObservableObject\", \"@MainActor\", \"xcodegen\", \"SwiftTerm\", \"Citadel\", \"SSH\", \"STT\", \"AVAudioEngine\", \"iOS app\", \"terminal emulator\", \"voice input\""
 ---
 
 # iOS SwiftUI App Development

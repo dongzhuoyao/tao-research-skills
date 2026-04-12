@@ -1,6 +1,6 @@
 ---
 name: webdataset-streaming
-description: Use when streaming large datasets from tar shards with WebDataset, replacing file-based DataLoaders, or precomputing encoder latents into shards. Triggers: "WebDataset", "tar shards", "wds", "streaming data", "ShardWriter", "latent shards"
+description: "Use when streaming large datasets from tar shards with WebDataset, replacing file-based DataLoaders, or precomputing encoder latents into shards. Triggers: \"WebDataset\", \"tar shards\", \"wds\", \"streaming data\", \"ShardWriter\", \"latent shards\""
 ---
 
 # WebDataset Streaming

@@ -1,6 +1,6 @@
 ---
 name: meta-init
-description: Use when installing tao-research-skills into a machine's global AI agent configuration. Creates symlinks, sets up auto-update hooks, and bootstraps memory directories across Claude Code and Codex. Triggers: "install skills", "setup skills globally", "meta-init", "cross-platform skills install"
+description: "Use when installing tao-research-skills into a machine's global AI agent configuration. Creates symlinks, sets up auto-update hooks, and bootstraps memory directories across Claude Code and Codex. Triggers: \"install skills\", \"setup skills globally\", \"meta-init\", \"cross-platform skills install\""
 ---
 
 # Meta Init

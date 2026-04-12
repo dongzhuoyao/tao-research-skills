@@ -1,6 +1,6 @@
 ---
 name: mem-init
-description: Initialize shared project memory for Codex and Claude Code in a repository. Use when a repo does not yet have canonical memory, AGENTS.md, or CLAUDE.md, and you want to bootstrap the standard memory layout quickly.
+description: "Initialize shared project memory for Codex and Claude Code in a repository. Use when a repo does not yet have canonical memory, AGENTS.md, or CLAUDE.md, and you want to bootstrap the standard memory layout quickly."
 ---
 
 # Mem Init

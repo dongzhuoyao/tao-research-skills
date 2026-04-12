@@ -1,6 +1,6 @@
 ---
 name: zsh
-description: Use when setting up zsh and Oh My Zsh on a new machine, configuring shell plugins, PATH, or conda initialization. Triggers: "zsh", "zshrc", "Oh My Zsh", "shell config", "dotfiles", "conda init", "PATH"
+description: "Use when setting up zsh and Oh My Zsh on a new machine, configuring shell plugins, PATH, or conda initialization. Triggers: \"zsh\", \"zshrc\", \"Oh My Zsh\", \"shell config\", \"dotfiles\", \"conda init\", \"PATH\""
 ---
 
 # ZSH Configuration

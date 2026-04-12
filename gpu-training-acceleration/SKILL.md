@@ -1,6 +1,6 @@
 ---
 name: gpu-training-acceleration
-description: Use when optimizing PyTorch training speed or memory on CUDA GPUs — global flags, torch.compile, fused optimizers, mixed precision, gradient checkpointing, kernel fusion, memory layout, or latent-space training. Applies to any PyTorch training workload. Triggers: "torch.compile", "TF32", "fused optimizer", "mixed precision", "bf16", "fp16", "gradient checkpointing", "Triton kernel", "CUDA flags", "GPU slow", "GPU memory"
+description: "Use when optimizing PyTorch training speed or memory on CUDA GPUs — global flags, torch.compile, fused optimizers, mixed precision, gradient checkpointing, kernel fusion, memory layout, or latent-space training. Applies to any PyTorch training workload. Triggers: \"torch.compile\", \"TF32\", \"fused optimizer\", \"mixed precision\", \"bf16\", \"fp16\", \"gradient checkpointing\", \"Triton kernel\", \"CUDA flags\", \"GPU slow\", \"GPU memory\""
 ---
 
 # GPU Training Acceleration

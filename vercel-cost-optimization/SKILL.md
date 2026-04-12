@@ -1,6 +1,6 @@
 ---
 name: vercel-cost-optimization
-description: Use when deploying Next.js apps to Vercel and costs are high, or when setting up a new Vercel project. Covers ISR-breaking patterns, function constraints, caching, Fluid Compute, build optimization. Triggers: "Vercel bill", "Vercel cost", "ISR broken", "dynamic rendering", "cache-control private", "x-vercel-cache MISS", "function invocations", "Fluid Compute", "GB-hours", "s-maxage", "stale-while-revalidate", "maxDuration", "build minutes"
+description: "Use when deploying Next.js apps to Vercel and costs are high, or when setting up a new Vercel project. Covers ISR-breaking patterns, function constraints, caching, Fluid Compute, build optimization. Triggers: \"Vercel bill\", \"Vercel cost\", \"ISR broken\", \"dynamic rendering\", \"cache-control private\", \"x-vercel-cache MISS\", \"function invocations\", \"Fluid Compute\", \"GB-hours\", \"s-maxage\", \"stale-while-revalidate\", \"maxDuration\", \"build minutes\""
 ---
 
 # Vercel Cost Optimization

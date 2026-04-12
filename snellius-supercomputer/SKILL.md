@@ -1,6 +1,6 @@
 ---
 name: snellius-supercomputer
-description: Use when running workloads on SURF Snellius supercomputer, including GPU job submission (NVIDIA A100/H100), conda/venv setup, Slurm configuration, and Snellius-specific infrastructure. Triggers: "Snellius", "SURF", "A100", "H100", "Dutch HPC"
+description: "Use when running workloads on SURF Snellius supercomputer, including GPU job submission (NVIDIA A100/H100), conda/venv setup, Slurm configuration, and Snellius-specific infrastructure. Triggers: \"Snellius\", \"SURF\", \"A100\", \"H100\", \"Dutch HPC\""
 ---
 
 # Snellius Supercomputer

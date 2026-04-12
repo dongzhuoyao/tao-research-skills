@@ -1,6 +1,6 @@
 ---
 name: claude-code-config
-description: Use when setting up Claude Code on a new machine, configuring permissions, statusline, or plugins. Contains the standard settings.json and statusline script.
+description: "Use when setting up Claude Code on a new machine, configuring permissions, statusline, or plugins. Contains the standard settings.json and statusline script."
 ---
 
 # Tao's Claude Code Configuration

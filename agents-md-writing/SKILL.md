@@ -1,6 +1,6 @@
 ---
 name: agents-md-writing
-description: Use when writing or improving CLAUDE.md, AGENTS.md, GEMINI.md, or any agent instruction file. Covers section structure, memory patterns, workflow rules, and anti-patterns. Triggers: "CLAUDE.md", "AGENTS.md", "agent instructions", "project memory", "MEMORY.md", "instruction file"
+description: "Use when writing or improving CLAUDE.md, AGENTS.md, GEMINI.md, or any agent instruction file. Covers section structure, memory patterns, workflow rules, and anti-patterns. Triggers: \"CLAUDE.md\", \"AGENTS.md\", \"agent instructions\", \"project memory\", \"MEMORY.md\", \"instruction file\""
 ---
 
 # Writing Effective Agent Instruction Files

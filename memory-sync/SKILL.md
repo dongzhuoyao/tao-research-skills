@@ -1,6 +1,6 @@
 ---
 name: memory-sync
-description: Set up and maintain shared project memory across Codex and Claude Code using one canonical Markdown source. Use when a repo should keep a single memory file in sync with generated AGENTS.md and a thin CLAUDE.md wrapper, or when memory drift needs to be checked or repaired.
+description: "Set up and maintain shared project memory across Codex and Claude Code using one canonical Markdown source. Use when a repo should keep a single memory file in sync with generated AGENTS.md and a thin CLAUDE.md wrapper, or when memory drift needs to be checked or repaired."
 ---
 
 # Memory Sync
