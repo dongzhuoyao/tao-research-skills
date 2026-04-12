@@ -71,6 +71,27 @@ Do **not** use markdown link style (`[name](../path/)`).
 
 - `vercel-cost-optimization` uses markdown link style in See Also instead of backtick style
 
+## Verification
+
+Before committing a new or modified skill, check:
+
+1. Frontmatter has exactly `name` and `description` fields
+2. `name` matches directory name (kebab-case)
+3. `description` starts with `Use when` and ends with `Triggers:` list
+4. Sections include `## When to Use` (first) and `## See Also` (last)
+5. README.md updated in all three places (badge, install block, table)
+
+## Global Installation
+
+Skills are installed as symlinks so `git pull` auto-updates all platforms:
+
+```
+~/.claude/skills/tao-research-skills  →  /path/to/tao-research-skills   # Claude Code
+~/.agents/skills/tao-research-skills  →  /path/to/tao-research-skills   # Codex
+```
+
+A `SessionStart` hook in `~/.claude/settings.json` runs `git pull` on every Claude Code session.
+
 ## Commits
 
 Conventional commits, scoped to skill name:

@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-20-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-22-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -45,6 +45,8 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `vercel-cost-optimization`: Vercel cost optimization, ISR-breaking patterns, function constraints, caching.
 - `ios-swiftui-app`: iOS SwiftUI app patterns, UIKit bridging, SSH terminal, voice input, xcodegen + SPM.
 - `claude-code-config`: Claude Code setup — permissions, statusline, plugins, settings.json.
+- `academic-deep-research`: Paper evaluation and topic surveys — venue, citations, reproducibility scoring.
+- `meta-init`: Install tao-research-skills globally across Claude Code and Codex with auto-update.
 
 Also check for upstream updates daily by running:
 cd skills/shared && git pull origin main && cd ../..
@@ -129,6 +131,13 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | [agents-md-writing](agents-md-writing/) | Writing effective CLAUDE.md / AGENTS.md: section structure, memory patterns, workflow rules, anti-patterns |
 | [memory-sync](memory-sync/) | One canonical Markdown memory file for Codex + Claude Code, generated AGENTS.md and CLAUDE.md, drift checks |
 | [mem-init](mem-init/) | Bootstrap shared project memory and a starter README.md for a new repository |
+| [meta-init](meta-init/) | Install tao-research-skills globally across Claude Code and Codex with auto-update hooks and memory bootstrap |
+
+### Research
+
+| Skill | Description |
+|-------|-------------|
+| [academic-deep-research](academic-deep-research/) | Paper evaluation and topic surveys: venue, citations, GitHub stats, social buzz, reproducibility, author signals, scored markdown reports |
 
 ### HPC & Supercomputers
 
