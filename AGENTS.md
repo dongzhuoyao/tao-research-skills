@@ -96,14 +96,14 @@ Before committing a new or modified skill, check:
 
 ## Global Installation
 
-Skills are installed as symlinks so `git pull` auto-updates all platforms:
+Each skill is symlinked individually (agents scan one level deep, not recursively):
 
 ```
-~/.claude/skills/tao-research-skills  →  /path/to/tao-research-skills   # Claude Code
-~/.agents/skills/tao-research-skills  →  /path/to/tao-research-skills   # Codex
+~/.claude/skills/slurm-gpu-training  →  /path/to/repo/slurm-gpu-training   # Claude Code
+~/.agents/skills/slurm-gpu-training  →  /path/to/repo/slurm-gpu-training   # Codex
 ```
 
-A `SessionStart` hook in `~/.claude/settings.json` runs `git pull` on every Claude Code session.
+Run `python meta-init/scripts/meta_init.py` to create all symlinks. A `SessionStart` hook auto-pulls updates.
 
 ## Commits
 

@@ -43,42 +43,66 @@ def _sanitize_cwd_for_claude(repo: Path) -> str:
 # Symlink creation
 # ---------------------------------------------------------------------------
 
+def _find_skill_dirs(repo: Path) -> list[Path]:
+    """Find all skill directories (those containing SKILL.md) in the repo."""
+    return sorted(d.parent for d in repo.glob("*/SKILL.md"))
+
+
 def install_symlinks(
     repo: Path,
     platforms: list[str],
     dry_run: bool = False,
-) -> dict[str, str]:
-    """Create symlinks from each platform's skills dir to the repo.
+) -> dict[str, dict[str, str]]:
+    """Create per-skill symlinks from each platform's skills dir.
 
-    Returns a dict of platform -> action taken.
+    Claude Code and Codex discover skills at ~/.claude/skills/<name>/SKILL.md
+    (one level deep), so each skill needs its own symlink — NOT a single
+    symlink to the whole repo.
+
+    Returns a dict of platform -> {skill_name: action}.
     """
-    results: dict[str, str] = {}
-    for name in platforms:
-        skills_dir = PLATFORMS[name]
-        target = skills_dir / SKILL_REPO_NAME
+    skill_dirs = _find_skill_dirs(repo)
+    results: dict[str, dict[str, str]] = {}
 
-        if target.is_symlink():
-            if target.resolve() == repo.resolve():
-                results[name] = "already_linked"
-                continue
-            results[name] = f"skipped:symlink_points_to_{target.resolve()}"
-            continue
-
-        if target.is_dir():
-            # Empty directory — safe to replace
-            try:
-                target.rmdir()
-            except OSError:
-                results[name] = "skipped:directory_not_empty"
-                continue
-
-        if dry_run:
-            results[name] = "would_create"
-            continue
-
+    for platform in platforms:
+        skills_dir = PLATFORMS[platform]
         skills_dir.mkdir(parents=True, exist_ok=True)
-        target.symlink_to(repo)
-        results[name] = "created"
+        platform_results: dict[str, str] = {}
+
+        # Remove stale repo-level symlink if it exists
+        old_repo_link = skills_dir / SKILL_REPO_NAME
+        if old_repo_link.is_symlink():
+            if not dry_run:
+                old_repo_link.unlink()
+            platform_results["_old_repo_symlink"] = "removed"
+
+        for skill_path in skill_dirs:
+            name = skill_path.name
+            target = skills_dir / name
+
+            if target.is_symlink():
+                if target.resolve() == skill_path.resolve():
+                    platform_results[name] = "already_linked"
+                    continue
+                # Points elsewhere — skip
+                platform_results[name] = "skipped:different_target"
+                continue
+
+            if target.is_dir():
+                try:
+                    target.rmdir()
+                except OSError:
+                    platform_results[name] = "skipped:directory_not_empty"
+                    continue
+
+            if dry_run:
+                platform_results[name] = "would_create"
+                continue
+
+            target.symlink_to(skill_path)
+            platform_results[name] = "created"
+
+        results[platform] = platform_results
 
     return results
 
@@ -368,7 +392,12 @@ def main() -> int:
 
     # Build report
     for p in platforms:
-        entry: dict[str, str] = {"symlink": symlink_results.get(p, "skipped")}
+        p_symlinks = symlink_results.get(p, {})
+        # Summarize symlinks: count by action
+        actions = {}
+        for action in p_symlinks.values():
+            actions[action] = actions.get(action, 0) + 1
+        entry: dict = {"symlinks": actions, "symlink_count": len(p_symlinks)}
         if p in hook_results:
             key = "hook" if p == "claude-code" else "agents_md"
             entry[key] = hook_results[p]

@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-22-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-23-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -46,6 +46,7 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `ios-swiftui-app`: iOS SwiftUI app patterns, UIKit bridging, SSH terminal, voice input, xcodegen + SPM.
 - `claude-code-config`: Claude Code setup — permissions, statusline, plugins, settings.json.
 - `academic-deep-research`: Paper evaluation and topic surveys — venue, citations, reproducibility scoring.
+- `arxiv-latex-reader`: Progressive paper reading — index all sections then deep-read on demand, never truncates.
 - `meta-init`: Install tao-research-skills globally across Claude Code and Codex with auto-update.
 
 Also check for upstream updates daily by running:
@@ -138,6 +139,7 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | Skill | Description |
 |-------|-------------|
 | [academic-deep-research](academic-deep-research/) | Paper evaluation and topic surveys: venue, citations, GitHub stats, social buzz, reproducibility, author signals, scored markdown reports |
+| [arxiv-latex-reader](arxiv-latex-reader/) | Progressive paper reading: index all sections (~2k tokens), deep-read on demand, chunk-summarize long sections, never truncates |
 
 ### HPC & Supercomputers
 

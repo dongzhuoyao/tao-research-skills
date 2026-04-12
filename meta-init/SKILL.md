@@ -18,7 +18,7 @@ Install this skills repo into the global configuration of multiple AI agent plat
 
 | Step | Claude Code | Codex |
 |------|------------|-------|
-| Symlink | `~/.claude/skills/tao-research-skills` | `~/.agents/skills/tao-research-skills` |
+| Symlinks | Per-skill: `~/.claude/skills/<name>` each | Per-skill: `~/.agents/skills/<name>` each |
 | Auto-update | `SessionStart` hook in `settings.json` | Instruction in `~/.agents/AGENTS.md` |
 | Memory bootstrap | Auto-memory dir with `MEMORY.md` + `README.md` | N/A |
 | Workflow rules | Appended to `~/.claude/CLAUDE.md` | Appended to `~/.agents/AGENTS.md` |

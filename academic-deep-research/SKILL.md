@@ -245,3 +245,4 @@ WebFetch → https://api.semanticscholar.org/graph/v1/paper/search?query={topic}
 - `ml-ablation-design` — Evaluating experimental rigor within papers
 - `genai-evaluation-metrics` — Understanding evaluation metrics referenced in papers
 - `fail-fast-ml-engineering` — Assessing code quality of released implementations
+- `arxiv-latex-reader` — Progressive reading of large arxiv papers without context overflow
