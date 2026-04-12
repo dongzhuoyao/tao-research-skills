@@ -273,6 +273,7 @@ WORKFLOW_RULES = """## tao-research-skills Workflow Rules
 2. **Project memory freshness** — Check whether any memory files (skill inventory, known issues, etc.) need updating to reflect changes made in this session. For Claude Code, update files in the auto-memory directory. For Codex, update project-level `AGENTS.md` if applicable.
 3. **Never truncate SKILL.md** — When reading or loading skills, always read the full file. If a skill is too large for the context window, use an LLM to summarize it instead of truncating. Never use `head`, `[:N]`, or `limit` on SKILL.md files.
 4. **No silent fallbacks** — Never use fallback values or default behaviors to mask errors. If something fails, raise it explicitly. Silent fallbacks hide bugs and make debugging impossible.
+5. **Remove stale logic** — Before committing, clean up `__pycache__/`, `.pyc` files, dead code from refactors, unused imports, and leftover test artifacts. Don't leave debris from earlier iterations.
 """
 
 
