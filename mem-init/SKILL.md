@@ -29,15 +29,19 @@ From the skill directory:
 python scripts/mem_init.py --repo /path/to/repo
 ```
 
+## Migration
+
+If the target repo already has a `CLAUDE.md` or `AGENTS.md` with real content (not a generated wrapper), that content is automatically migrated into `memory/project.md` before initialization. This preserves existing project instructions while adopting the canonical memory layout.
+
 ## Result
 
 After initialization, the target repo should contain:
 
-- `memory/project.md`
-- `memory/claude.md`
-- `AGENTS.md`
-- `CLAUDE.md`
-- `README.md`
+- `memory/project.md` — canonical shared memory (migrated from existing files or template)
+- `memory/claude.md` — Claude-specific overlay
+- `AGENTS.md` — generated from `memory/project.md`
+- `CLAUDE.md` — generated as `@AGENTS.md` wrapper
+- `README.md` — starter template (skipped if already exists)
 
 ## Notes
 
