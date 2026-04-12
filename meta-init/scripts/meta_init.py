@@ -271,6 +271,8 @@ WORKFLOW_RULES = """## tao-research-skills Workflow Rules
 
 1. **README freshness** — Run `ls */SKILL.md | wc -l` and compare with the badge count in `README.md`. Check that every skill directory appears in all three README sections (badge count, one-prompt install block, Available Skills table).
 2. **Project memory freshness** — Check whether any memory files (skill inventory, known issues, etc.) need updating to reflect changes made in this session. For Claude Code, update files in the auto-memory directory. For Codex, update project-level `AGENTS.md` if applicable.
+3. **Never truncate SKILL.md** — When reading or loading skills, always read the full file. If a skill is too large for the context window, use an LLM to summarize it instead of truncating. Never use `head`, `[:N]`, or `limit` on SKILL.md files.
+4. **No silent fallbacks** — Never use fallback values or default behaviors to mask errors. If something fails, raise it explicitly. Silent fallbacks hide bugs and make debugging impossible.
 """
 
 
