@@ -132,6 +132,30 @@ workspace/<paper_id>/
 4. **Stateless reader** — `section_reader` is a pure function, no LLM, no state
 5. **Caller manages budget** — no limit on deep-reads; caller decides what to load
 
+### 4. Figure Extractor (`scripts/figure_extractor.py`)
+
+Extracts figures and tables from arxiv LaTeX source as standalone PDFs/PNGs.
+
+```bash
+python scripts/figure_extractor.py <paper_id>
+python scripts/figure_extractor.py <paper_id> --key-only
+```
+
+- Downloads LaTeX source from arxiv e-print
+- Recursively expands `\input{}` directives to find all figure/table environments
+- Wraps each in a minimal standalone LaTeX document and compiles to PDF → PNG
+- Auto-categorizes: method, result, qualitative, supplementary
+- `--key-only` extracts only key figures (method diagrams, main result tables)
+- Cached: `workspace/<paper_id>/figures/manifest.json`
+
+```python
+from figure_extractor import FigureExtractor
+ext = FigureExtractor("2210.06462")
+key_figs = ext.extract_key()       # method + result figures only
+method = ext.get_method_figures()   # architecture/pipeline diagrams
+results = ext.get_result_figures()  # tables + ablation plots
+```
+
 ## Anti-Patterns
 
 - **Loading full paper into context** — use the index to decide what to read first
