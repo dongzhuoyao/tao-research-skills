@@ -78,6 +78,7 @@ def _categorize_table(caption: str, number: int) -> tuple[str, bool]:
 def _download_source(paper_id: str, dest_dir: Path) -> Path:
     """Download and extract arxiv LaTeX source tarball."""
     url = f"https://arxiv.org/e-print/{paper_id}"
+    dest_dir.mkdir(parents=True, exist_ok=True)
     tar_path = dest_dir / "source.tar.gz"
 
     if not tar_path.exists():
