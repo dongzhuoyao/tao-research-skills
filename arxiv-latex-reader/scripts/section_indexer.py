@@ -1,290 +1,160 @@
-"""Section indexer — LLM-powered section summarization for progressive reading.
+"""Build section_index.json with LLM-generated summaries.
 
-Standalone — no poster_agent dependency. Only requires: anthropic (pip).
+Short sections (<100 chars): use full text as summary (no truncation).
+Medium sections (<32k chars): single LLM call → 2-3 bullet summary.
+Long sections (≥32k chars): chunk-summarize → merge.
+Cached: only builds once per paper unless --force.
 
-Generates a lightweight section index (~2k tokens) from paper_content.json.
-Each section gets a 2-3 sentence bullet-point summary via LLM.
-Long sections (>=8k tokens / ~32k chars) are chunk-summarized recursively.
-NEVER truncates — every character is read and summarized.
-
-Usage:
-    python section_indexer.py <paper_id>
-    python section_indexer.py <paper_id> --force --workspace workspace
-
-    # As library:
-    from section_indexer import SectionIndexer
-    indexer = SectionIndexer()
-    index = indexer.build_index("2403.13802")
+CRITICAL: Never truncate. Never use [:N] on text. For long sections,
+use chunk-summarization (split → summarize each → merge).
 """
 
 from __future__ import annotations
 
-import argparse
 import json
-import logging
-from dataclasses import asdict, dataclass, field
+import sys
 from pathlib import Path
 
 import anthropic
 
-logger = logging.getLogger(__name__)
+CHUNK_THRESHOLD = 32_000  # chars before chunking
+CHUNK_SIZE = 24_000       # target chunk size
 
-DEFAULT_WORKSPACE = Path("workspace")
-
-# ~8k tokens ≈ 32k chars (rough 1:4 ratio)
-CHUNK_CHAR_THRESHOLD = 32_000
-# Chunk target size: ~6k tokens ≈ 24k chars
-CHUNK_TARGET_CHARS = 24_000
-
-SUMMARIZE_SYSTEM = """\
-You are an expert academic paper reader. Summarize the given section text \
-into 2-3 concise bullet points that capture the key ideas, methods, or findings. \
-Use bullet points (•) format. Be specific — include method names, metric values, \
-and concrete claims. Do NOT omit important details."""
+SUMMARY_SYSTEM = """\
+You are a research paper analyst. Summarize the given section in 2-3 concise \
+bullet points (each ≤80 chars). Focus on key claims, methods, or results. \
+Return ONLY bullet points starting with •, no other text."""
 
 MERGE_SYSTEM = """\
-You are an expert academic paper reader. Given multiple chunk summaries from the \
-same paper section, merge them into a single cohesive 2-3 bullet-point summary. \
-Preserve the most important details: method names, metrics, key findings. \
-Use bullet points (•) format."""
+You are a research paper analyst. Given multiple chunk summaries from the same \
+section, merge them into 2-3 concise bullet points (each ≤80 chars). \
+Remove redundancy. Return ONLY bullet points starting with •."""
 
 
-@dataclass
-class SectionEntry:
-    """One entry in the section index."""
-    id: int
-    name: str
-    level: int
-    char_count: int
-    summary: str
-    figures: list[str] = field(default_factory=list)
-    tables: list[str] = field(default_factory=list)
+def _summarize_text(client: anthropic.Anthropic, text: str, model: str) -> str:
+    """Summarize a single text block via LLM."""
+    resp = client.messages.create(
+        model=model,
+        max_tokens=512,
+        system=SUMMARY_SYSTEM,
+        messages=[{"role": "user", "content": text}],
+    )
+    return resp.content[0].text.strip()
 
 
-@dataclass
-class SectionIndex:
-    """Lightweight section index for a paper."""
-    paper_id: str
-    title: str
-    abstract: str
-    total_sections: int
-    total_chars: int
-    sections: list[SectionEntry] = field(default_factory=list)
+def _chunk_summarize(client: anthropic.Anthropic, text: str, model: str) -> str:
+    """Split long text into chunks, summarize each, merge."""
+    chunks = []
+    for i in range(0, len(text), CHUNK_SIZE):
+        chunks.append(text[i:i + CHUNK_SIZE])
 
-    def to_json(self, path: Path) -> None:
-        Path(path).write_text(
-            json.dumps(asdict(self), indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
+    chunk_summaries = []
+    for chunk in chunks:
+        summary = _summarize_text(client, chunk, model)
+        chunk_summaries.append(summary)
 
-    @classmethod
-    def from_json(cls, path: Path) -> SectionIndex:
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
-        entries = [SectionEntry(**e) for e in data.pop("sections", [])]
-        return cls(**data, sections=entries)
+    merged_input = "Chunk summaries to merge:\n\n" + "\n\n".join(chunk_summaries)
+    resp = client.messages.create(
+        model=model,
+        max_tokens=512,
+        system=MERGE_SYSTEM,
+        messages=[{"role": "user", "content": merged_input}],
+    )
+    return resp.content[0].text.strip()
 
 
-# ── paper_content.json loading (standalone) ───────────────────────
+def build_section_index(
+    paper_id: str,
+    workspace_dir: str | Path = "workspace",
+    force: bool = False,
+    model: str = "claude-sonnet-4-20250514",
+) -> dict:
+    """Build or load cached section_index.json.
 
-def _load_paper(paper_json: Path) -> dict:
-    """Load paper_content.json and return raw dict."""
-    return json.loads(paper_json.read_text(encoding="utf-8"))
+    Returns dict with "sections" list, each having name/summary/char_count.
+    """
+    workspace = Path(workspace_dir) / paper_id
+    index_path = workspace / "section_index.json"
+    paper_path = workspace / "paper_content.json"
+
+    # Return cached if exists and not forcing rebuild
+    if index_path.exists() and not force:
+        with open(index_path) as f:
+            return json.load(f)
+
+    if not paper_path.exists():
+        raise FileNotFoundError(f"Run 'poster-agent parse' first: {paper_path}")
+
+    with open(paper_path) as f:
+        paper = json.load(f)
+
+    client = anthropic.Anthropic()
+    sections_index = []
+
+    for sec in paper.get("sections", []):
+        name = sec["name"]
+        text = sec["text"]
+        char_count = len(text)
+
+        print(f"  Indexing § {name} ({char_count} chars)...", end=" ", flush=True)
+
+        if char_count < 100:
+            # Too short to summarize — use full text as summary
+            summary = f"• {text}"
+        elif char_count >= CHUNK_THRESHOLD:
+            summary = _chunk_summarize(client, text, model)
+        else:
+            summary = _summarize_text(client, text, model)
+
+        print("done")
+        sections_index.append({
+            "name": name,
+            "summary": summary,
+            "char_count": char_count,
+            "level": sec.get("level", 1),
+        })
+
+    index = {"sections": sections_index}
+    with open(index_path, "w") as f:
+        json.dump(index, f, indent=2)
+
+    return index
 
 
 class SectionIndexer:
-    """Builds a section index using LLM summarization."""
+    """Wraps build_section_index for OOP usage."""
 
-    def __init__(
-        self,
-        api_key: str | None = None,
-        model: str = "claude-sonnet-4-20250514",
-    ):
+    def __init__(self, paper_id: str, workspace_dir: str | Path = "workspace",
+                 model: str = "claude-sonnet-4-20250514"):
+        self.paper_id = paper_id
+        self.workspace_dir = Path(workspace_dir)
         self.model = model
-        self.client = anthropic.Anthropic(api_key=api_key)
 
-    def build_index(
-        self,
-        paper_id: str,
-        *,
-        workspace_dir: Path | str | None = None,
-        force: bool = False,
-    ) -> SectionIndex:
-        """Build section index for a paper.
-
-        Args:
-            paper_id: Arxiv paper ID.
-            workspace_dir: Override workspace directory.
-            force: Rebuild even if section_index.json already exists.
-
-        Returns:
-            SectionIndex with summaries for all sections.
-        """
-        ws = Path(workspace_dir) if workspace_dir else DEFAULT_WORKSPACE
-        paper_dir = ws / paper_id
-        index_path = paper_dir / "section_index.json"
-
-        if not force and index_path.exists():
-            logger.info("Loading cached section index: %s", index_path)
-            return SectionIndex.from_json(index_path)
-
-        paper_json = paper_dir / "paper_content.json"
-        if not paper_json.exists():
-            raise FileNotFoundError(
-                f"paper_content.json not found at {paper_json}. "
-                "Run 'poster-agent parse' first."
-            )
-
-        paper = _load_paper(paper_json)
-        index = self._index_paper(paper_id, paper)
-        index.to_json(index_path)
-        logger.info("Wrote section index: %s (%d sections)", index_path, len(index.sections))
-        return index
-
-    def _index_paper(self, paper_id: str, paper: dict) -> SectionIndex:
-        """Build index entries for all sections."""
-        sections = paper.get("sections", [])
-        figures = paper.get("figures", [])
-        tables = paper.get("tables", [])
-        metadata = paper.get("metadata", {})
-
-        entries = []
-        for i, sec in enumerate(sections):
-            sec_text = sec.get("text", "")
-            sec_figures = [f["id"] for f in figures if f.get("id") and f["id"] in sec_text]
-            sec_tables = [t["id"] for t in tables if t.get("id") and t["id"] in sec_text]
-
-            summary = self._summarize_section(sec["name"], sec_text)
-
-            entries.append(SectionEntry(
-                id=i,
-                name=sec["name"],
-                level=sec.get("level", 1),
-                char_count=len(sec_text),
-                summary=summary,
-                figures=sec_figures,
-                tables=sec_tables,
-            ))
-
-        return SectionIndex(
-            paper_id=paper_id,
-            title=metadata.get("title", ""),
-            abstract=metadata.get("abstract", ""),
-            total_sections=len(sections),
-            total_chars=sum(len(s.get("text", "")) for s in sections),
-            sections=entries,
+    def build(self, force: bool = False) -> dict:
+        return build_section_index(
+            self.paper_id,
+            workspace_dir=self.workspace_dir,
+            force=force,
+            model=self.model,
         )
-
-    def _summarize_section(self, name: str, text: str) -> str:
-        """Summarize a section, chunking if necessary."""
-        if len(text) < CHUNK_CHAR_THRESHOLD:
-            return self._llm_summarize(name, text)
-
-        chunks = split_into_chunks(text, CHUNK_TARGET_CHARS)
-        logger.info(
-            "Section '%s' is %d chars, splitting into %d chunks",
-            name, len(text), len(chunks),
-        )
-
-        chunk_summaries = []
-        for j, chunk in enumerate(chunks):
-            label = f"{name} (chunk {j + 1}/{len(chunks)})"
-            chunk_summaries.append(self._llm_summarize(label, chunk))
-
-        merged_text = "\n---\n".join(chunk_summaries)
-        return self._llm_merge(name, merged_text)
-
-    def _llm_summarize(self, section_name: str, text: str) -> str:
-        """Single LLM call to summarize section text."""
-        try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=512,
-                system=SUMMARIZE_SYSTEM,
-                messages=[{
-                    "role": "user",
-                    "content": f"## Section: {section_name}\n\n{text}",
-                }],
-            )
-            return message.content[0].text.strip()
-        except Exception as e:
-            logger.warning("LLM summarize failed for '%s': %s", section_name, e)
-            return fallback_summary(text)
-
-    def _llm_merge(self, section_name: str, chunk_summaries: str) -> str:
-        """Merge multiple chunk summaries into one cohesive summary."""
-        try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=512,
-                system=MERGE_SYSTEM,
-                messages=[{
-                    "role": "user",
-                    "content": (
-                        f"## Section: {section_name}\n\n"
-                        f"Chunk summaries:\n{chunk_summaries}"
-                    ),
-                }],
-            )
-            return message.content[0].text.strip()
-        except Exception as e:
-            logger.warning("LLM merge failed for '%s': %s", section_name, e)
-            return chunk_summaries
-
-
-def split_into_chunks(text: str, target_chars: int) -> list[str]:
-    """Split text into chunks at paragraph boundaries."""
-    paragraphs = text.split("\n\n")
-    chunks: list[str] = []
-    current: list[str] = []
-    current_len = 0
-
-    for para in paragraphs:
-        para_len = len(para)
-        if current and current_len + para_len > target_chars:
-            chunks.append("\n\n".join(current))
-            current = [para]
-            current_len = para_len
-        else:
-            current.append(para)
-            current_len += para_len
-
-    if current:
-        chunks.append("\n\n".join(current))
-
-    return chunks
-
-
-def fallback_summary(text: str) -> str:
-    """Fallback: first + last paragraph extraction (not truncation)."""
-    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
-    if not paragraphs:
-        return ""
-    if len(paragraphs) == 1:
-        return f"• {paragraphs[0][:300]}..."
-    first = paragraphs[0][:200]
-    last = paragraphs[-1][:200]
-    return f"• {first}...\n• {last}..."
-
-
-# ── CLI ──────────────────────────────────────────────────────────
-
-def main():
-    parser = argparse.ArgumentParser(description="Build section index with LLM summaries")
-    parser.add_argument("paper_id", help="Paper ID (e.g., 2403.13802)")
-    parser.add_argument("--force", action="store_true", help="Rebuild even if cached")
-    parser.add_argument("--workspace", default="workspace", help="Workspace directory")
-    parser.add_argument("--model", default="claude-sonnet-4-20250514", help="Model name")
-    args = parser.parse_args()
-
-    indexer = SectionIndexer(model=args.model)
-    index = indexer.build_index(
-        args.paper_id, workspace_dir=args.workspace, force=args.force,
-    )
-    print(f"Index: {index.total_sections} sections, {index.total_chars:,} total chars")
-    for entry in index.sections:
-        print(f"  §{entry.id} {entry.name} ({entry.char_count:,} chars)")
-        print(f"    → {entry.summary[:120]}...")
 
 
 if __name__ == "__main__":
-    main()
+    args = sys.argv[1:]
+    if not args:
+        print("Usage: python section_indexer.py <paper_id> [--force] [--workspace DIR]")
+        sys.exit(1)
+
+    paper_id = args[0]
+    force = "--force" in args
+    ws = "workspace"
+    if "--workspace" in args:
+        ws = args[args.index("--workspace") + 1]
+
+    index = build_section_index(paper_id, workspace_dir=ws, force=force)
+    print(f"\nSection index ({len(index['sections'])} sections):")
+    for sec in index["sections"]:
+        print(f"  § {sec['name']:30s} {sec['char_count']:>6d} chars")
+        for line in sec["summary"].split("\n"):
+            if line.strip():
+                print(f"    {line.strip()}")

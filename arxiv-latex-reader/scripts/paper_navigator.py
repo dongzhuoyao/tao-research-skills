@@ -1,201 +1,148 @@
-"""Paper navigator — orchestrator for progressive paper reading.
+"""Paper navigator — orchestrates section indexer + reader for progressive reading.
 
-Standalone — no poster_agent dependency. Imports only sibling scripts.
-
-Keeps the lightweight section index in context (~2k tokens) and dispatches
-on-demand full section reads only when needed.
-
-Usage:
-    python paper_navigator.py <paper_id> overview
-    python paper_navigator.py <paper_id> poster
-    python paper_navigator.py <paper_id> read Method Experiments
-
-    # As library:
-    from paper_navigator import PaperNavigator
-    nav = PaperNavigator("2403.13802")
-    overview = nav.get_overview()
-    context = nav.read_for_poster()
+Three modes:
+  overview    — ~2k token section index (always in context)
+  read_full   — full text of specific sections (no truncation, via section_reader)
+  read_for_poster — LLM summaries of poster-relevant sections (from section_index.json)
 """
 
 from __future__ import annotations
 
-import argparse
-import logging
+import json
 import sys
 from pathlib import Path
 
-from section_indexer import SectionIndex, SectionIndexer
-from section_reader import read_sections
+try:
+    from scripts.section_reader import SectionReader
+except ImportError:
+    from section_reader import SectionReader
 
-logger = logging.getLogger(__name__)
+# Sections to skip when reading for poster extraction
+_SKIP_PATTERNS = [
+    "related work", "prior work", "background",
+    "acknowledgment", "acknowledgement",
+    "appendix", "supplementary", "supplemental",
+    "references", "bibliography",
+]
 
-DEFAULT_WORKSPACE = Path("workspace")
 
-# Sections typically skipped for poster extraction
-_SKIP_FOR_POSTER = {"related work", "acknowledgment", "acknowledgments", "acknowledgements", "appendix"}
-
-# Sections always included for poster extraction
-_ALWAYS_FOR_POSTER = {"method", "approach", "model", "experiment", "result", "conclusion", "discussion"}
+def _should_skip(name: str) -> bool:
+    """Check if a section should be skipped for poster reading."""
+    lower = name.lower().strip()
+    return any(pat in lower for pat in _SKIP_PATTERNS)
 
 
 class PaperNavigator:
-    """Orchestrator: index-aware progressive paper reading."""
+    """Orchestrates progressive paper reading."""
 
-    def __init__(
-        self,
-        paper_id: str,
-        *,
-        workspace_dir: Path | str | None = None,
-        api_key: str | None = None,
-        model: str = "claude-sonnet-4-20250514",
-    ):
+    def __init__(self, paper_id: str, workspace_dir: str | Path = "workspace"):
         self.paper_id = paper_id
-        self.workspace_dir = Path(workspace_dir) if workspace_dir else DEFAULT_WORKSPACE
-        self._api_key = api_key
-        self._model = model
-        self._index: SectionIndex | None = None
+        self.workspace = Path(workspace_dir) / paper_id
+        self._paper_path = self.workspace / "paper_content.json"
+        self._index_path = self.workspace / "section_index.json"
+        self._reader = SectionReader(self._paper_path)
+        self._index = self._load_index()
+        self._paper_data = self._load_paper()
 
-    @property
-    def index(self) -> SectionIndex:
-        """Lazy-load or build the section index."""
-        if self._index is None:
-            index_path = self.workspace_dir / self.paper_id / "section_index.json"
-            if index_path.exists():
-                self._index = SectionIndex.from_json(index_path)
-            else:
-                indexer = SectionIndexer(api_key=self._api_key, model=self._model)
-                self._index = indexer.build_index(
-                    self.paper_id, workspace_dir=self.workspace_dir,
-                )
-        return self._index
+    def _load_index(self) -> dict:
+        if not self._index_path.exists():
+            raise FileNotFoundError(
+                f"Run section_indexer first: {self._index_path}\n"
+                f"  python scripts/section_indexer.py {self.paper_id}"
+            )
+        with open(self._index_path) as f:
+            return json.load(f)
+
+    def _load_paper(self) -> dict:
+        with open(self._paper_path) as f:
+            return json.load(f)
 
     def get_overview(self) -> str:
-        """Return a formatted overview of the paper structure.
-
-        This is the ~2k token lightweight view that stays in context.
-        """
-        idx = self.index
-        lines = [
-            f"# {idx.title}",
-            f"**Sections:** {idx.total_sections}  |  **Total chars:** {idx.total_chars:,}",
-            f"**Abstract:** {idx.abstract[:300]}{'...' if len(idx.abstract) > 300 else ''}",
-            "",
-        ]
-
-        for entry in idx.sections:
-            figs = f"  Figures: {', '.join(entry.figures)}" if entry.figures else ""
-            tabs = f"  Tables: {', '.join(entry.tables)}" if entry.tables else ""
-            lines.append(f"§{entry.id} {entry.name} ({entry.char_count:,} chars)")
-            lines.append(f"  → {entry.summary}")
-            if figs:
-                lines.append(figs)
-            if tabs:
-                lines.append(tabs)
+        """Return compact section index (~2k tokens). Keep in context."""
+        lines = [f"# {self._paper_data['metadata']['title']}", ""]
+        for sec in self._index["sections"]:
+            lines.append(f"§ {sec['name']:30s}  {sec['char_count']:>6,} chars")
+            for bullet in sec["summary"].split("\n"):
+                b = bullet.strip()
+                if b:
+                    lines.append(f"  {b}")
             lines.append("")
-
         return "\n".join(lines)
 
-    def read_full(self, sections: list[int] | list[str] | str) -> list[dict]:
-        """Read full text of specified sections.
+    def read_full(self, section_names: list[str]) -> list[dict]:
+        """Read complete text of named sections. No truncation."""
+        return self._reader.read(section_names)
 
-        Delegates to section_reader. No limit on count — caller manages budget.
-        """
-        return read_sections(
-            self.paper_id, sections, workspace_dir=self.workspace_dir,
-        )
+    def read_by_keyword(self, keyword: str) -> list[dict]:
+        """Fuzzy search sections by keyword."""
+        return self._reader.read_by_keyword(keyword)
 
     def read_for_poster(self) -> dict:
-        """Smart read for poster extraction.
+        """Smart read: skip non-poster sections, return LLM summaries.
 
-        Returns a dict with:
-            - overview: formatted index overview (always included)
-            - sections: list of full section dicts for poster-relevant sections
-            - skipped: list of section names that were skipped
+        Returns summaries from section_index.json (not raw text).
+        LLM summaries are higher quality than truncated text because the
+        indexer reads the ENTIRE section and distills key claims/methods/results.
 
-        Skips: Related Work, Acknowledgments, Appendix.
-        Includes: Method, Experiments/Results, Conclusion, Introduction.
+        Returns:
+            {
+                "overview": str,           # compact index (~2k tokens)
+                "sections": [dict],        # LLM summaries of poster-relevant sections
+                "skipped": [str],          # names of skipped sections
+                "figures": [dict],         # figure metadata from paper
+                "tables": [dict],          # table metadata from paper
+            }
         """
-        idx = self.index
-        needed_indices = []
-        skipped_names = []
+        skipped = []
+        sections = []
 
-        for entry in idx.sections:
-            name_lower = entry.name.lower()
-
-            if any(skip in name_lower for skip in _SKIP_FOR_POSTER):
-                skipped_names.append(entry.name)
-                continue
-
-            if any(key in name_lower for key in _ALWAYS_FOR_POSTER):
-                needed_indices.append(entry.id)
-                continue
-
-            if "introduction" in name_lower:
-                needed_indices.append(entry.id)
-                continue
-
-            if entry.char_count < 15_000:
-                needed_indices.append(entry.id)
+        for sec in self._index["sections"]:
+            name = sec["name"]
+            if _should_skip(name):
+                skipped.append(name)
             else:
-                skipped_names.append(entry.name)
-
-        full_sections = read_sections(
-            self.paper_id, needed_indices, workspace_dir=self.workspace_dir,
-        )
-
-        total_chars = sum(len(s["text"]) for s in full_sections)
-        logger.info(
-            "read_for_poster(%s): %d sections (%d chars), skipped %s",
-            self.paper_id, len(full_sections), total_chars, skipped_names,
-        )
+                # Return summary from index, not raw text
+                sections.append({
+                    "name": name,
+                    "summary": sec["summary"],
+                    "char_count": sec["char_count"],
+                    "level": sec.get("level", 1),
+                })
 
         return {
             "overview": self.get_overview(),
-            "sections": full_sections,
-            "skipped": skipped_names,
+            "sections": sections,
+            "skipped": skipped,
+            "figures": self._paper_data.get("figures", []),
+            "tables": self._paper_data.get("tables", []),
         }
-
-    def read_by_keyword(self, keyword: str) -> list[dict]:
-        """Read sections matching a keyword (fuzzy name match)."""
-        return read_sections(
-            self.paper_id, keyword, workspace_dir=self.workspace_dir,
-        )
-
-
-# ── CLI ──────────────────────────────────────────────────────────
-
-def main():
-    parser = argparse.ArgumentParser(description="Navigate paper sections progressively")
-    parser.add_argument("paper_id", help="Paper ID")
-    parser.add_argument("action", choices=["overview", "poster", "read"],
-                        help="Action: overview, poster, or read")
-    parser.add_argument("sections", nargs="*", help="Section names (for 'read' action)")
-    parser.add_argument("--workspace", default="workspace", help="Workspace directory")
-    args = parser.parse_args()
-
-    nav = PaperNavigator(args.paper_id, workspace_dir=args.workspace)
-
-    if args.action == "overview":
-        print(nav.get_overview())
-    elif args.action == "poster":
-        result = nav.read_for_poster()
-        print(result["overview"])
-        print(f"\n--- Deep-read {len(result['sections'])} sections ---")
-        for sec in result["sections"]:
-            print(f"\n§{sec['index']} {sec['name']} ({len(sec['text']):,} chars)")
-        if result["skipped"]:
-            print(f"\nSkipped: {', '.join(result['skipped'])}")
-    elif args.action == "read":
-        if not args.sections:
-            print("Specify section names for 'read' action", file=sys.stderr)
-            sys.exit(1)
-        results = nav.read_full(args.sections)
-        for sec in results:
-            print(f"\n{'=' * 60}")
-            print(f"§{sec['index']} {sec['name']} ({len(sec['text']):,} chars)")
-            print("=" * 60)
-            print(sec["text"])
 
 
 if __name__ == "__main__":
-    main()
+    args = sys.argv[1:]
+    if len(args) < 2:
+        print("Usage: python paper_navigator.py <paper_id> <command> [args...]")
+        print("Commands: overview, poster, read <section_names...>")
+        sys.exit(1)
+
+    paper_id, command = args[0], args[1]
+    ws = "workspace"
+    if "--workspace" in args:
+        ws = args[args.index("--workspace") + 1]
+
+    nav = PaperNavigator(paper_id, workspace_dir=ws)
+
+    if command == "overview":
+        print(nav.get_overview())
+    elif command == "poster":
+        result = nav.read_for_poster()
+        print(result["overview"])
+        print(f"\n--- {len(result['sections'])} sections (skipped: {result['skipped']}) ---\n")
+        for sec in result["sections"]:
+            print(f"\n§ {sec['name']} ({sec['char_count']} chars)")
+            print(sec["summary"])
+    elif command == "read":
+        names = args[2:]
+        for sec in nav.read_full(names):
+            print(f"\n§ {sec['name']} ({sec['char_count']} chars)")
+            print(sec["text"])
