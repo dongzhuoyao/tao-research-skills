@@ -6,7 +6,7 @@
 
 *Lessons learned from training diffusion models and vision transformers on A100/H100 clusters — at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-23-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-28-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
@@ -47,6 +47,11 @@ Then append the following to CLAUDE.md (or AGENTS.md) under a "### Shared skills
 - `claude-code-config`: Claude Code setup — permissions, statusline, plugins, settings.json.
 - `academic-deep-research`: Paper evaluation and topic surveys — venue, citations, reproducibility scoring.
 - `arxiv-latex-reader`: Progressive paper reading — index all sections then deep-read on demand, never truncates.
+- `pdf-reader`: PDF → markdown + figures + tables workspace, then delegates to arxiv-latex-reader for progressive reading.
+- `blog-reader`: Faithful, figure-aware summaries of long technical blog posts — section chunking, multimodal figure Read, coverage test.
+- `gemini-generate-img`: Gemini text-to-image (nano-banana) — models, aspect ratios, prompt patterns, retry logic.
+- `gemini-edit-img`: Gemini image editing / multi-image composition — input encoding, preservation tricks, iterative refinement.
+- `login-cdp`: Re-authenticate CDP browser sessions — detects expired platforms, guides interactive re-login via MCP browser tools.
 - `meta-init`: Install tao-research-skills globally across Claude Code and Codex with auto-update.
 
 Also check for upstream updates daily by running:
@@ -140,6 +145,15 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 |-------|-------------|
 | [academic-deep-research](academic-deep-research/) | Paper evaluation and topic surveys: venue, citations, GitHub stats, social buzz, reproducibility, author signals, scored markdown reports |
 | [arxiv-latex-reader](arxiv-latex-reader/) | Progressive paper reading: index all sections (~2k tokens), deep-read on demand, chunk-summarize long sections, never truncates |
+| [pdf-reader](pdf-reader/) | PDF → markdown + figures + tables workspace (marker / pymupdf4llm / poppler fallback chain), then delegates to arxiv-latex-reader for progressive two-layer reading |
+| [blog-reader](blog-reader/) | Faithful, figure-aware digests of long technical blog posts: section-based chunking, parallel-subagent summarization, multimodal figure reading, coverage + claim-traceability test |
+
+### Generative AI
+
+| Skill | Description |
+|-------|-------------|
+| [gemini-generate-img](gemini-generate-img/) | Gemini text-to-image (nano-banana): model choice, aspect ratios, prompt patterns, multi-candidate sampling, OpenRouter routing, retry logic |
+| [gemini-edit-img](gemini-edit-img/) | Gemini image editing and multi-image composition: input encoding, outfit swap / subject transfer / style transfer, preservation tricks, iterative refinement |
 
 ### HPC & Supercomputers
 
@@ -169,6 +183,7 @@ And many more — see [agentskills.io](https://agentskills.io) for the full list
 | [zsh](zsh/) | ZSH + Oh My Zsh: robbyrussell theme, conda init, PATH config |
 | [github-cli](github-cli/) | GitHub CLI (`gh`): `gh api`, PRs, issues, releases, replacing WebFetch for GitHub URLs |
 | [claude-code-config](claude-code-config/) | Claude Code setup: permissions, statusline script, plugins (superpowers, code-simplifier, ralph-loop), settings.json |
+| [login-cdp](login-cdp/) | Re-authenticate CDP browser sessions: auto-detect expired platforms, guide interactive re-login via MCP browser tools |
 
 ---
 
