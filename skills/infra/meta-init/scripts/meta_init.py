@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -30,8 +31,14 @@ SKILL_REPO_NAME = "tao-research-skills"
 # ---------------------------------------------------------------------------
 
 def _repo_root() -> Path:
-    """Return the root of this skills repo (two levels up from this script)."""
-    return Path(__file__).resolve().parents[2]
+    """Return the root of this skills repo by walking up to a .git directory."""
+    start = Path(__file__).resolve().parent
+    for candidate in [start, *start.parents]:
+        if (candidate / ".git").exists():
+            return candidate
+    # Fall back to script-relative default (four levels up covers the layout
+    # skills/infra/meta-init/scripts/meta_init.py).
+    return Path(__file__).resolve().parents[4]
 
 
 def _sanitize_cwd_for_claude(repo: Path) -> str:
@@ -44,8 +51,12 @@ def _sanitize_cwd_for_claude(repo: Path) -> str:
 # ---------------------------------------------------------------------------
 
 def _find_skill_dirs(repo: Path) -> list[Path]:
-    """Find all skill directories (those containing SKILL.md) in the repo."""
-    return sorted(d.parent for d in repo.glob("*/SKILL.md"))
+    """Find all skill directories (those containing SKILL.md) in the repo.
+
+    Skills live under skills/<category>/<name>/SKILL.md, e.g.
+    skills/hpc/slurm-gpu-training/SKILL.md.
+    """
+    return sorted(d.parent for d in repo.glob("skills/*/*/SKILL.md"))
 
 
 def install_symlinks(
@@ -84,7 +95,20 @@ def install_symlinks(
                 if target.resolve() == skill_path.resolve():
                     platform_results[name] = "already_linked"
                     continue
-                # Points elsewhere — skip
+
+                # Dangling symlink or one that still points into this repo
+                # (e.g. a flat-layout link left over from before we grouped
+                # skills under skills/<category>/). Replace it.
+                link_target = Path(os.readlink(target))
+                points_into_repo = str(repo) in str(link_target)
+                if not target.exists() or points_into_repo:
+                    if not dry_run:
+                        target.unlink()
+                        target.symlink_to(skill_path)
+                    platform_results[name] = "relinked"
+                    continue
+
+                # Points to an unrelated target the user set up manually.
                 platform_results[name] = "skipped:different_target"
                 continue
 
@@ -269,7 +293,7 @@ WORKFLOW_RULES = """## tao-research-skills Workflow Rules
 
 **Before commit/push in tao-research-skills repo**, always verify:
 
-1. **README freshness** — Run `ls */SKILL.md | wc -l` and compare with the badge count in `README.md`. Check that every skill directory appears in all three README sections (badge count, one-prompt install block, Available Skills table).
+1. **README freshness** — Run `ls skills/*/*/SKILL.md | wc -l` and compare with the badge count in `README.md`. Check that every skill directory appears in all three README sections (badge count, one-prompt install block, Available Skills table).
 2. **Project memory freshness** — Check whether any memory files (skill inventory, known issues, etc.) need updating to reflect changes made in this session. For Claude Code, update files in the auto-memory directory. For Codex, update project-level `AGENTS.md` if applicable.
 3. **Never truncate SKILL.md** — When reading or loading skills, always read the full file. If a skill is too large for the context window, use an LLM to summarize it instead of truncating. Never use `head`, `[:N]`, or `limit` on SKILL.md files.
 4. **No silent fallbacks** — Never use fallback values or default behaviors to mask errors. If something fails, raise it explicitly. Silent fallbacks hide bugs and make debugging impossible.

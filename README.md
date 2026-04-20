@@ -28,18 +28,19 @@ A plug-and-play collection of **28 self-contained agent skills** — HPC job sub
 
 ```bash
 git clone https://github.com/dongzhuoyao/tao-research-skills.git ~/lab/tao-research-skills
-python ~/lab/tao-research-skills/meta-init/scripts/meta_init.py
+python ~/lab/tao-research-skills/skills/infra/meta-init/scripts/meta_init.py
 ```
 
-This symlinks every skill into `~/.claude/skills/` and `~/.agents/skills/`, injects a non-blocking `SessionStart` git-pull hook so skills stay current, and bootstraps the global memory file. Re-run any time — it's idempotent. See [`meta-init/SKILL.md`](meta-init/SKILL.md) for flags (`--dry-run`, `--platforms`, `--repo`).
+This symlinks every skill into `~/.claude/skills/` and `~/.agents/skills/`, injects a non-blocking `SessionStart` git-pull hook so skills stay current, and bootstraps the global memory file. Re-run any time — it's idempotent. See [`skills/infra/meta-init/SKILL.md`](skills/infra/meta-init/SKILL.md) for flags (`--dry-run`, `--platforms`, `--repo`).
 
 **Per-project — git submodule** (for teams who want to pin a version):
 
 ```bash
 git submodule add https://github.com/dongzhuoyao/tao-research-skills.git skills/shared
+python skills/shared/skills/infra/meta-init/scripts/meta_init.py --repo skills/shared
 ```
 
-Your agent will auto-discover every `skills/shared/*/SKILL.md` without further wiring.
+The second command symlinks each skill into the project's agent skill paths so the agent can auto-discover them.
 
 ---
 
@@ -49,80 +50,82 @@ Your agent will auto-discover every `skills/shared/*/SKILL.md` without further w
 
 | Skill | Description |
 |-------|-------------|
-| [gpu-training-acceleration](gpu-training-acceleration/) | PyTorch GPU optimization: CUDA flags, `torch.compile`, fused optimizers, mixed precision, gradient checkpointing, Triton kernel fusion, latent-space training |
-| [ml-ablation-design](ml-ablation-design/) | Designing ablation studies: synthetic data, variant loops, production metrics, W&B grouping |
-| [genai-evaluation-metrics](genai-evaluation-metrics/) | GenAI evaluation: FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi — feature extractors, online/offline eval, distributed computation |
+| [gpu-training-acceleration](skills/training/gpu-training-acceleration/) | PyTorch GPU optimization: CUDA flags, `torch.compile`, fused optimizers, mixed precision, gradient checkpointing, Triton kernel fusion, latent-space training |
+| [ml-ablation-design](skills/training/ml-ablation-design/) | Designing ablation studies: synthetic data, variant loops, production metrics, W&B grouping |
+| [genai-evaluation-metrics](skills/training/genai-evaluation-metrics/) | GenAI evaluation: FID, IS, KID, sFID, FDD, FVD, PRDC, LPIPS, SSIM, AuthPct, Vendi — feature extractors, online/offline eval, distributed computation |
 
 ### 📊 Experiment & Data Management
 
 | Skill | Description |
 |-------|-------------|
-| [hydra-experiment-config](hydra-experiment-config/) | Structuring ML experiment configs with Hydra: hierarchical groups, flat aliases, config-is-king |
-| [wandb-experiment-tracking](wandb-experiment-tracking/) | W&B integration: online/offline modes, run naming, param logging, runtime config |
-| [hf-dataset-management](hf-dataset-management/) | HuggingFace dataset curation: upload verification, offline caching, preflight checks |
-| [webdataset-streaming](webdataset-streaming/) | WebDataset tar-shard streaming: shard creation, DataLoader gotchas, Accelerate compatibility |
+| [hydra-experiment-config](skills/experiments/hydra-experiment-config/) | Structuring ML experiment configs with Hydra: hierarchical groups, flat aliases, config-is-king |
+| [wandb-experiment-tracking](skills/experiments/wandb-experiment-tracking/) | W&B integration: online/offline modes, run naming, param logging, runtime config |
+| [hf-dataset-management](skills/experiments/hf-dataset-management/) | HuggingFace dataset curation: upload verification, offline caching, preflight checks |
+| [webdataset-streaming](skills/experiments/webdataset-streaming/) | WebDataset tar-shard streaming: shard creation, DataLoader gotchas, Accelerate compatibility |
 
 ### 🖥️ HPC & Supercomputers
 
 | Skill | Description |
 |-------|-------------|
-| [slurm-gpu-training](slurm-gpu-training/) | Running GPU training on HPC/Slurm: offline-first, preflight checks, conda init, job monitoring |
-| [lumi-supercomputer](lumi-supercomputer/) | LUMI supercomputer: AMD MI250X/ROCm GPU jobs, PyTorch containers, Slingshot network |
-| [snellius-supercomputer](snellius-supercomputer/) | SURF Snellius supercomputer: NVIDIA A100/H100 GPU jobs, conda/venv setup |
+| [slurm-gpu-training](skills/hpc/slurm-gpu-training/) | Running GPU training on HPC/Slurm: offline-first, preflight checks, conda init, job monitoring |
+| [lumi-supercomputer](skills/hpc/lumi-supercomputer/) | LUMI supercomputer: AMD MI250X/ROCm GPU jobs, PyTorch containers, Slingshot network |
+| [snellius-supercomputer](skills/hpc/snellius-supercomputer/) | SURF Snellius supercomputer: NVIDIA A100/H100 GPU jobs, conda/venv setup |
 
 ### 📚 Research & Reading
 
 | Skill | Description |
 |-------|-------------|
-| [academic-deep-research](academic-deep-research/) | Paper evaluation and topic surveys: venue, citations, GitHub stats, social buzz, reproducibility, author signals, scored markdown reports |
-| [arxiv-latex-reader](arxiv-latex-reader/) | Progressive paper reading: index all sections (~2k tokens), deep-read on demand, chunk-summarize long sections, never truncates |
-| [pdf-reader](pdf-reader/) | PDF → markdown + figures + tables workspace (marker / pymupdf4llm / poppler fallback chain), then delegates to arxiv-latex-reader for progressive two-layer reading |
-| [blog-reader](blog-reader/) | Faithful, figure-aware digests of long technical blog posts: section-based chunking, parallel-subagent summarization, multimodal figure reading, coverage + claim-traceability tests |
+| [academic-deep-research](skills/research/academic-deep-research/) | Paper evaluation and topic surveys: venue, citations, GitHub stats, social buzz, reproducibility, author signals, scored markdown reports |
+| [arxiv-latex-reader](skills/research/arxiv-latex-reader/) | Progressive paper reading: index all sections (~2k tokens), deep-read on demand, chunk-summarize long sections, never truncates |
+| [pdf-reader](skills/research/pdf-reader/) | PDF → markdown + figures + tables workspace (marker / pymupdf4llm / poppler fallback chain), then delegates to arxiv-latex-reader for progressive two-layer reading |
+| [blog-reader](skills/research/blog-reader/) | Faithful, figure-aware digests of long technical blog posts: section-based chunking, parallel-subagent summarization, multimodal figure reading, coverage + claim-traceability tests |
 
 ### 🎨 Generative AI
 
 | Skill | Description |
 |-------|-------------|
-| [gemini-generate-img](gemini-generate-img/) | Gemini text-to-image (nano-banana): model choice, aspect ratios, prompt patterns, multi-candidate sampling, OpenRouter routing, retry logic |
-| [gemini-edit-img](gemini-edit-img/) | Gemini image editing and multi-image composition: input encoding, outfit swap / subject transfer / style transfer, preservation tricks, iterative refinement |
+| [gemini-generate-img](skills/genai/gemini-generate-img/) | Gemini text-to-image (nano-banana): model choice, aspect ratios, prompt patterns, multi-candidate sampling, OpenRouter routing, retry logic |
+| [gemini-edit-img](skills/genai/gemini-edit-img/) | Gemini image editing and multi-image composition: input encoding, outfit swap / subject transfer / style transfer, preservation tricks, iterative refinement |
 
 ### 🧠 Agent Tooling & Memory
 
 | Skill | Description |
 |-------|-------------|
-| [fail-fast-ml-engineering](fail-fast-ml-engineering/) | No silent fallbacks, explicit errors, config as single source of truth, preflight patterns |
-| [agents-md-writing](agents-md-writing/) | Writing effective `CLAUDE.md` / `AGENTS.md`: section structure, memory patterns, workflow rules, anti-patterns |
-| [memory-sync](memory-sync/) | One canonical Markdown memory file for Codex + Claude Code, generated `AGENTS.md`/`CLAUDE.md` wrappers, drift checks |
-| [mem-init](mem-init/) | Bootstrap shared project memory and a starter `README.md` for a new repository |
-| [meta-init](meta-init/) | Install tao-research-skills globally across Claude Code and Codex with auto-update hooks and memory bootstrap |
+| [fail-fast-ml-engineering](skills/infra/fail-fast-ml-engineering/) | No silent fallbacks, explicit errors, config as single source of truth, preflight patterns |
+| [agents-md-writing](skills/infra/agents-md-writing/) | Writing effective `CLAUDE.md` / `AGENTS.md`: section structure, memory patterns, workflow rules, anti-patterns |
+| [memory-sync](skills/infra/memory-sync/) | One canonical Markdown memory file for Codex + Claude Code, generated `AGENTS.md`/`CLAUDE.md` wrappers, drift checks |
+| [mem-init](skills/infra/mem-init/) | Bootstrap shared project memory and a starter `README.md` for a new repository |
+| [meta-init](skills/infra/meta-init/) | Install tao-research-skills globally across Claude Code and Codex with auto-update hooks and memory bootstrap |
 
 ### 🛠️ Dev Environment
 
 | Skill | Description |
 |-------|-------------|
-| [tmux](tmux/) | Tmux dotfiles: Gruvbox theme, vim-style bindings, copy mode, mouse toggle |
-| [zsh](zsh/) | ZSH + Oh My Zsh: robbyrussell theme, conda init, PATH config |
-| [github-cli](github-cli/) | GitHub CLI (`gh`): `gh api`, PRs, issues, releases, replacing `WebFetch` for GitHub URLs |
-| [claude-code-config](claude-code-config/) | Claude Code setup: permissions, statusline script, plugins (superpowers, code-simplifier, ralph-loop), `settings.json` |
-| [login-cdp](login-cdp/) | Re-authenticate CDP browser sessions: auto-detect expired platforms, guide interactive re-login via MCP browser tools |
-| [vercel-cost-optimization](vercel-cost-optimization/) | Vercel cost optimization: ISR-breaking patterns, function constraints, `Cache-Control` headers, Fluid Compute, build minutes |
+| [tmux](skills/devenv/tmux/) | Tmux dotfiles: Gruvbox theme, vim-style bindings, copy mode, mouse toggle |
+| [zsh](skills/devenv/zsh/) | ZSH + Oh My Zsh: robbyrussell theme, conda init, PATH config |
+| [github-cli](skills/devenv/github-cli/) | GitHub CLI (`gh`): `gh api`, PRs, issues, releases, replacing `WebFetch` for GitHub URLs |
+| [claude-code-config](skills/devenv/claude-code-config/) | Claude Code setup: permissions, statusline script, plugins (superpowers, code-simplifier, ralph-loop), `settings.json` |
+| [login-cdp](skills/devenv/login-cdp/) | Re-authenticate CDP browser sessions: auto-detect expired platforms, guide interactive re-login via MCP browser tools |
+| [vercel-cost-optimization](skills/devenv/vercel-cost-optimization/) | Vercel cost optimization: ISR-breaking patterns, function constraints, `Cache-Control` headers, Fluid Compute, build minutes |
 
 ### 📱 Application Development
 
 | Skill | Description |
 |-------|-------------|
-| [ios-swiftui-app](ios-swiftui-app/) | iOS SwiftUI app development: UIKit bridging, SSH terminal (Citadel/SwiftTerm), voice input STT pipeline, `@MainActor` services, xcodegen + SPM, Keychain storage |
+| [ios-swiftui-app](skills/apps/ios-swiftui-app/) | iOS SwiftUI app development: UIKit bridging, SSH terminal (Citadel/SwiftTerm), voice input STT pipeline, `@MainActor` services, xcodegen + SPM, Keychain storage |
 
 ---
 
 ## How It Works
 
-Each skill is a self-contained directory with a single `SKILL.md` at its root:
+Each skill is a self-contained directory with a single `SKILL.md` at its root, grouped into `skills/<category>/<name>/`:
 
 ```
-skill-name/
-├── SKILL.md       # YAML frontmatter + when-to-use + patterns + anti-patterns
-└── references/    # (optional) deep-dive docs loaded on demand
+skills/
+└── <category>/         # training, experiments, hpc, research, genai, infra, devenv, apps
+    └── <skill-name>/
+        ├── SKILL.md    # YAML frontmatter + when-to-use + patterns + anti-patterns
+        └── references/ # (optional) deep-dive docs loaded on demand
 ```
 
 The YAML frontmatter follows the [Open Agent Skills](https://agentskills.io) standard:
@@ -158,7 +161,7 @@ When a user's prompt hits a trigger keyword, the agent loads the corresponding `
 
 PRs welcome. Add a new skill in three steps:
 
-1. Create `<skill-name>/SKILL.md` with the required YAML frontmatter (`name`, `description` ending in a `Triggers:` list).
+1. Create `skills/<category>/<skill-name>/SKILL.md` with the required YAML frontmatter (`name`, `description` ending in a `Triggers:` list).
 2. Add `## When to Use`, patterns, `## Anti-Patterns`, and `## See Also` sections.
 3. Update the badge count, install block, and catalog in this `README.md`.
 

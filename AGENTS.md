@@ -9,14 +9,19 @@ Reusable AI agent skills for ML research workflows, following the [Open Agent Sk
 ## Structure
 
 ```
-<skill-name>/
-  SKILL.md              # Frontmatter + patterns + anti-patterns
-  references/           # (optional) Deep-dive docs for progressive disclosure
+skills/
+  <category>/            # training, experiments, hpc, research, genai, infra, devenv, apps
+    <skill-name>/
+      SKILL.md           # Frontmatter + patterns + anti-patterns
+      references/        # (optional) Deep-dive docs for progressive disclosure
+docs/                    # Pipeline-skill output artifacts (blog digests, paper evals)
+memory/                  # Canonical memory (project.md) + Claude overlay (claude.md)
 ```
 
 - Each skill is a self-contained directory with a `SKILL.md`
+- Skills are grouped by category under `skills/<category>/` — agents still scan one level deep via individual symlinks created by `skills/infra/meta-init`, so the nesting is transparent
 - No runnable code — documentation and knowledge only
-- Installed as a git submodule into other projects
+- Installed as a git submodule into other projects (via `skills/infra/meta-init/scripts/meta_init.py --repo <submodule-path>`)
 
 ## Build & Test
 
@@ -78,13 +83,13 @@ Each skill must be fully self-contained and loadable independently:
 
 ## Adding a Skill
 
-1. Create `<skill-name>/SKILL.md` with proper frontmatter
-2. Add `## When to Use`, patterns, `## Anti-Patterns`, `## See Also`
-3. Update `README.md` in **three places**:
+1. Pick the category under `skills/` that fits best (`training`, `experiments`, `hpc`, `research`, `genai`, `infra`, `devenv`, `apps`). Create a new one only if none fits.
+2. Create `skills/<category>/<skill-name>/SKILL.md` with proper frontmatter.
+3. Add `## When to Use`, patterns, `## Anti-Patterns`, `## See Also`.
+4. Update `README.md` in **two places**:
    - Badge count (`skills-N-blue`)
-   - One-prompt install block (flat bullet list)
-   - Available Skills table (under the correct category)
-4. Cross-reference from related skills' See Also sections
+   - Skill Catalog table under the matching category
+5. Cross-reference from related skills' See Also sections.
 
 ## Known Issues
 
@@ -95,10 +100,10 @@ Each skill must be fully self-contained and loadable independently:
 Before committing a new or modified skill, check:
 
 1. Frontmatter has exactly `name` and `description` fields
-2. `name` matches directory name (kebab-case)
+2. `name` matches the directory name (kebab-case, last path segment under `skills/<category>/`)
 3. `description` starts with `Use when` and ends with `Triggers:` list
 4. Sections include `## When to Use` (first) and `## See Also` (last)
-5. README.md updated in all three places (badge, install block, table)
+5. README.md updated: badge count matches `ls skills/*/*/SKILL.md | wc -l`, and the skill appears in the Skill Catalog table under its category
 
 ## Testing Pipeline Skills
 
@@ -115,19 +120,19 @@ Output artifacts go under `docs/`:
 Each skill is symlinked individually (agents scan one level deep, not recursively):
 
 ```
-~/.claude/skills/slurm-gpu-training  →  /path/to/repo/slurm-gpu-training   # Claude Code
-~/.agents/skills/slurm-gpu-training  →  /path/to/repo/slurm-gpu-training   # Codex
+~/.claude/skills/slurm-gpu-training  →  /path/to/repo/skills/hpc/slurm-gpu-training   # Claude Code
+~/.agents/skills/slurm-gpu-training  →  /path/to/repo/skills/hpc/slurm-gpu-training   # Codex
 ```
 
-Run `python meta-init/scripts/meta_init.py` to create all symlinks. A `SessionStart` hook auto-pulls updates.
+Run `python skills/infra/meta-init/scripts/meta_init.py` to create all symlinks. A `SessionStart` hook auto-pulls updates.
 
 ## Regenerating AGENTS.md / CLAUDE.md
 
 Both files are generated. Edit `memory/project.md` (shared) or `memory/claude.md` (Claude-only overlay), then:
 
 ```bash
-python memory-sync/scripts/memory_sync.py sync --repo .
-python memory-sync/scripts/memory_sync.py check --repo .
+python skills/infra/memory-sync/scripts/memory_sync.py sync --repo .
+python skills/infra/memory-sync/scripts/memory_sync.py check --repo .
 ```
 
 `check` must exit clean before committing — it enforces no drift between canonical and generated.
