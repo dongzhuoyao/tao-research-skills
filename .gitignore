@@ -1,3 +1,5 @@
-arxiv-latex-reader/scripts/__pycache__/
-arxiv-latex-reader/tests/__pycache__/
 __pycache__/
+**/__pycache__/
+*.pyc
+
+.claude/
