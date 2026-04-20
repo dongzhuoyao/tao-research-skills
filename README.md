@@ -6,13 +6,13 @@
 
 *Distilled from training diffusion models and vision transformers on A100/H100 clusters at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-28-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-29-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
 ---
 
-A plug-and-play collection of **28 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
+A plug-and-play collection of **29 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
 
 - 🧠 **Battle-tested** — every skill is distilled from real research projects, not hypothetical best practices.
 - 🔌 **Multi-agent** — works in Claude Code, Codex, Cursor, Gemini CLI, and any other [Open Agent Skills](https://agentskills.io)–compatible agent.
@@ -79,6 +79,7 @@ The second command symlinks each skill into the project's agent skill paths so t
 | [arxiv-latex-reader](skills/research/arxiv-latex-reader/) | Progressive paper reading: index all sections (~2k tokens), deep-read on demand, chunk-summarize long sections, never truncates |
 | [pdf-reader](skills/research/pdf-reader/) | PDF → markdown + figures + tables workspace (marker / pymupdf4llm / poppler fallback chain), then delegates to arxiv-latex-reader for progressive two-layer reading |
 | [blog-reader](skills/research/blog-reader/) | Faithful, figure-aware digests of long technical blog posts: section-based chunking, parallel-subagent summarization, multimodal figure reading, coverage + claim-traceability tests |
+| [github-reader](skills/research/github-reader/) | GitHub repo digest: shallow clone, 7-section markdown output covering implementation logic, main insight (from paper when found), and key results; delegates paper reading to arxiv-latex-reader / pdf-reader |
 
 ### 🎨 Generative AI
 
