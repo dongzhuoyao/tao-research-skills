@@ -18,6 +18,12 @@ Reusable AI agent skills for ML research workflows, following the [Open Agent Sk
 - No runnable code — documentation and knowledge only
 - Installed as a git submodule into other projects
 
+## Build & Test
+
+There is no build system, no test runner, no `package.json`, no `pyproject.toml`. This is a pure documentation repo — skills are plain Markdown with YAML frontmatter. Do not search for Makefiles, lockfiles, or CI configs.
+
+Verification = `bash` + `grep` against `SKILL.md` per the Verification section. No framework is invoked.
+
 ## Conventions
 
 ### Frontmatter
@@ -94,6 +100,16 @@ Before committing a new or modified skill, check:
 4. Sections include `## When to Use` (first) and `## See Also` (last)
 5. README.md updated in all three places (badge, install block, table)
 
+## Testing Pipeline Skills
+
+For skills that define a multi-step pipeline (e.g. `blog-reader`, `pdf-reader`, `arxiv-latex-reader`, `academic-deep-research`, `ml-ablation-design`), a structural check is necessary but not sufficient. After the structural checks pass, dry-run the pipeline on a real input and verify the emitted artifact against its source.
+
+Output artifacts go under `docs/`:
+
+- `docs/blogs/YYYY-MM-DD-<slug>.md` — blog digests (`blog-reader`)
+- `docs/research/YYYY-MM-DD-<slug>.md` — paper evaluations (`academic-deep-research`)
+- `docs/plans/YYYY-MM-DD-<slug>-design.md` — design docs for new skills
+
 ## Global Installation
 
 Each skill is symlinked individually (agents scan one level deep, not recursively):
@@ -104,6 +120,17 @@ Each skill is symlinked individually (agents scan one level deep, not recursivel
 ```
 
 Run `python meta-init/scripts/meta_init.py` to create all symlinks. A `SessionStart` hook auto-pulls updates.
+
+## Regenerating AGENTS.md / CLAUDE.md
+
+Both files are generated. Edit `memory/project.md` (shared) or `memory/claude.md` (Claude-only overlay), then:
+
+```bash
+python memory-sync/scripts/memory_sync.py sync --repo .
+python memory-sync/scripts/memory_sync.py check --repo .
+```
+
+`check` must exit clean before committing — it enforces no drift between canonical and generated.
 
 ## Commits
 
