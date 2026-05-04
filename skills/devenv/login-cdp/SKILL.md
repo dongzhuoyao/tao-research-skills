@@ -18,15 +18,15 @@ Two CDP ports, two independent Chrome instances, each with its own login session
 
 | Port | Account | Session Directory | Purpose |
 |------|---------|-------------------|---------|
-| 9222 | Account 1 (default) | `$HOME/chrome-debug` | General browsing, Twitter scraping, posting |
+| 9222 | Account 1 (default) | `$HOME/chrome-debug-v2` | General browsing, Twitter scraping, posting |
 | 9223 | Account 2 | `$HOME/chrome-debug2` | RedNote publishing (secondary account) |
 
 Startup commands:
 ```bash
-# Account 1 — CDP 9222 — Session: ~/chrome-debug
+# Account 1 — CDP 9222 — Session: ~/chrome-debug-v2
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
   --remote-debugging-port=9222 \
-  --user-data-dir="$HOME/chrome-debug"
+  --user-data-dir="$HOME/chrome-debug-v2"
 
 # Account 2 — CDP 9223 — Session: ~/.chrome-cdp/rednote-account2
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
@@ -79,7 +79,7 @@ CDP <port> is not running. Paste this into your terminal:
 Then re-run /login-cdp.
 ```
 
-Port → profile mapping: 9222 → `chrome-debug`, 9223 → `chrome-debug2`.
+Port → profile mapping: 9222 → `chrome-debug-v2`, 9223 → `chrome-debug2`.
 
 If CDP is reachable, also check which `--user-data-dir` is being used:
 ```bash
