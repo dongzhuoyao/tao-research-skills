@@ -121,10 +121,10 @@ See [references/pytorch-gpu-jobs.md](references/pytorch-gpu-jobs.md) for full mu
 
 **Warning**: No backups on any storage. `/tmp` on compute nodes is memory-backed (no local disk). Never install Python packages directly on Lustre — use containers + SquashFS.
 
-## Common Mistakes
+## Anti-Patterns
 
-| Mistake | Fix |
-|---------|-----|
+| Anti-Pattern | Fix |
+|--------------|-----|
 | Using `CUDA_VISIBLE_DEVICES` | Use `ROCR_VISIBLE_DEVICES=$SLURM_LOCALID` |
 | `--cpus-per-task=8` per GCD | Use 7 (only 56 cores available, not 64) |
 | `pip install` on Lustre | Use container shell + `make-squashfs` |

@@ -146,6 +146,6 @@ After the script finishes:
 
 ## See Also
 
-- `mem-init` — Bootstrap project memory files in a target repo (different purpose: target repo memory, not global install)
+- `project-mem-init` — Bootstrap project memory files in a target repo (different purpose: target repo memory, not global install)
 - `memory-sync` — Keep AGENTS.md and CLAUDE.md in sync from one canonical source
 - `claude-code-config` — Claude Code permissions, statusline, plugins setup

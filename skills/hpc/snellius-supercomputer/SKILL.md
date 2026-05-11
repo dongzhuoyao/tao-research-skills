@@ -120,10 +120,10 @@ myquota                                                        # Disk quotas
 nvidia-smi                                                     # GPU status (on compute node)
 ```
 
-## Common Mistakes
+## Anti-Patterns
 
-| Mistake | Fix |
-|---------|-----|
+| Anti-Pattern | Fix |
+|--------------|-----|
 | Forgetting `--account=` | Every job needs an account. Check with `accinfo`. |
 | Not sourcing conda in sbatch | Add `source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate <env>` |
 | Missing `LD_LIBRARY_PATH` | Export `$CONDA_PREFIX/lib` to avoid shared library errors |

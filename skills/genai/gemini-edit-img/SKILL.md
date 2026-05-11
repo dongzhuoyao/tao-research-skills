@@ -1,6 +1,6 @@
 ---
 name: gemini-edit-img
-description: Use when editing, modifying, or composing existing images with Google's Gemini image models ("nano-banana"). Covers single-image edits (add/remove/restyle), multi-image composition (outfit swap, subject-into-scene, style transfer), input encoding, preservation tricks, and iterative refinement. Triggers: "edit image", "gemini edit", "nano-banana edit", "image to image", "image composition", "outfit swap", "subject transfer", "style transfer", "inpaint", "outpaint"
+description: "Use when editing, modifying, or composing existing images with Google's Gemini image models (\"nano-banana\"). Covers single-image edits (add/remove/restyle), multi-image composition (outfit swap, subject-into-scene, style transfer), input encoding, preservation tricks, and iterative refinement. Triggers: \"edit image\", \"gemini edit\", \"nano-banana edit\", \"image to image\", \"image composition\", \"outfit swap\", \"subject transfer\", \"style transfer\", \"inpaint\", \"outpaint\""
 ---
 
 # Gemini Image Editing

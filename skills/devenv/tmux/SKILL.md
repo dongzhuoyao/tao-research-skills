@@ -111,6 +111,17 @@ tmux source-file ~/.tmux.conf
 | Clipboard not working (macOS) | Install `reattach-to-user-namespace`: `brew install reattach-to-user-namespace` |
 | Tmux config not loading | Verify symlink: `ls -la ~/.tmux.conf` should point to `~/tao-tmux-zsh/tmux.conf` |
 
+## Anti-Patterns
+
+| Anti-Pattern | What goes wrong | Fix |
+|--------------|-----------------|-----|
+| Installing TPM and adding many plugins | Slow startup, fails on remote servers without internet | This config is self-contained — no TPM needed |
+| Leaving `TERM=xterm` on a remote server | Colors mangled, key bindings break, copy-mode glitches | Set `TERM=xterm-256color` (in zshrc or `~/.ssh/config` via `SetEnv`) |
+| Editing `~/.tmux.conf` directly after symlinking | Edits get lost on next `git pull` of the dotfiles repo | Edit `~/tao-tmux-zsh/tmux.conf` and re-source |
+| Patching `pbcopy` into Linux server config | Errors — `pbcopy` is macOS only | Let the config branch by OS; do not patch in `pbcopy` on Linux |
+| Starting multiple tmux servers per user | Sessions diverge across servers; confusing reattach | Use `tmux a` to attach to the existing server |
+| Forgetting to reload after editing config | Changes don't take effect until restart | `prefix + r` or `tmux source-file ~/.tmux.conf` |
+
 ## See Also
 
 - `zsh` — Companion zsh configuration from the same dotfiles repo

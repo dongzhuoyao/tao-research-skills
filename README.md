@@ -6,13 +6,13 @@
 
 *Distilled from training diffusion models and vision transformers on A100/H100 clusters at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-31-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-32-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
 ---
 
-A plug-and-play collection of **31 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
+A plug-and-play collection of **32 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
 
 - 🧠 **Battle-tested** — every skill is distilled from real research projects, not hypothetical best practices.
 - 🔌 **Multi-agent** — works in Claude Code, Codex, Cursor, Gemini CLI, and any other [Open Agent Skills](https://agentskills.io)–compatible agent.
@@ -82,6 +82,7 @@ The second command symlinks each skill into the project's agent skill paths so t
 | [github-reader](skills/research/github-reader/) | GitHub repo digest: shallow clone, 7-section markdown output covering implementation logic, main insight (from paper when found), and key results; delegates paper reading to arxiv-latex-reader / pdf-reader |
 | [youtube-wiki](skills/research/youtube-wiki/) | YouTube video → faithful, timestamped wiki entry under `docs/videos/`. yt-dlp transcript + chapter/LLM/time sectioning + parallel-subagent summaries + verbatim quotes with speaker attribution + coverage test |
 | [insert-wiki](skills/research/insert-wiki/) | Single-URL commonplace book: capture an X tweet, LinkedIn post, HN thread, or short blog as a tagged verbatim entry with a "Why I saved this" hook under `docs/wikis/`. CDP for login-walled hosts; redirects YouTube / arXiv / GitHub-repo URLs to their specialized skills |
+| [cc-pdf-reader](skills/research/cc-pdf-reader/) | Read PDF papers via Claude Code CLI: delegates PDF reading to Claude Code's native multimodal Read tool, with structured prompts for one-shot summary, deep read, chunked multi-session, or figure-focused modes |
 
 ### 🎨 Generative AI
 
@@ -97,7 +98,7 @@ The second command symlinks each skill into the project's agent skill paths so t
 | [fail-fast-ml-engineering](skills/infra/fail-fast-ml-engineering/) | No silent fallbacks, explicit errors, config as single source of truth, preflight patterns |
 | [agents-md-writing](skills/infra/agents-md-writing/) | Writing effective `CLAUDE.md` / `AGENTS.md`: section structure, memory patterns, workflow rules, anti-patterns |
 | [memory-sync](skills/infra/memory-sync/) | One canonical Markdown memory file for Codex + Claude Code, generated `AGENTS.md`/`CLAUDE.md` wrappers, drift checks |
-| [mem-init](skills/infra/mem-init/) | Bootstrap shared project memory and a starter `README.md` for a new repository |
+| [project-mem-init](skills/infra/project-mem-init/) | Bootstrap shared project memory and a starter `README.md` for a new repository |
 | [meta-init](skills/infra/meta-init/) | Install tao-research-skills globally across Claude Code and Codex with auto-update hooks and memory bootstrap |
 
 ### 🛠️ Dev Environment

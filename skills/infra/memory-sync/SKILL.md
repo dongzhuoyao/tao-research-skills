@@ -16,7 +16,7 @@ Default pattern:
 
 This avoids maintaining two different memory bodies by hand.
 
-## Use This Skill When
+## When to Use
 
 - The user wants one shared project memory for Codex and Claude Code
 - `AGENTS.md` and `CLAUDE.md` have drifted
@@ -71,8 +71,19 @@ python scripts/memory_sync.py check --repo /path/to/repo
 
 Success means the generated files match the canonical source.
 
+## Anti-Patterns
+
+| Anti-Pattern | What goes wrong | Fix |
+|--------------|-----------------|-----|
+| Editing generated `AGENTS.md` directly | Drift between canonical and host file; next `sync` reverts your edits | Always edit `memory/project.md` instead |
+| Stuffing Claude-only content into `memory/project.md` | Codex picks up Claude-only behavior and gets confused | Put Claude-only notes in `memory/claude.md` overlay |
+| Skipping `check` before committing | Drift slips into git; future agents read stale memory | Run `python scripts/memory_sync.py check --repo .` as a pre-commit gate |
+| Inlining the full memory body into `CLAUDE.md` instead of `@AGENTS.md` import | Two copies drift; one host gets stale | Keep `CLAUDE.md` as a thin `@AGENTS.md` wrapper |
+| Storing memory as YAML or JSON | Harder to skim, breaks host conventions that expect Markdown | Markdown only |
+| Hand-editing both files "to keep them in sync" | Defeats the point — the script is the source of truth | Edit canonical, then run `sync` |
+
 ## See Also
 
-- `mem-init` — Bootstrap project memory files from scratch (complementary to sync)
+- `project-mem-init` — Bootstrap project memory files from scratch (complementary to sync)
 - `meta-init` — Install tao-research-skills globally across platforms
 - `agents-md-writing` — Patterns for writing effective CLAUDE.md/AGENTS.md

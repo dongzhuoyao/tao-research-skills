@@ -1,6 +1,6 @@
 ---
 name: claude-code-config
-description: "Use when setting up Claude Code on a new machine, configuring permissions, statusline, or plugins. Contains the standard settings.json and statusline script."
+description: "Use when setting up Claude Code on a new machine, configuring permissions, statusline, or plugins. Contains the standard settings.json and statusline script. Triggers: \"Claude Code setup\", \"settings.json\", \"statusline\", \"permissions\", \"plugins\", \"enabledPlugins\", \"~/.claude\""
 ---
 
 # Tao's Claude Code Configuration
@@ -294,3 +294,22 @@ Analyzes a codebase and recommends Claude Code automations: hooks, subagents, sk
 - `defaultMode: "plan"` forces Claude to plan before implementing. Override per-session with `/chat` for quick questions.
 - The statusline script reads JSON from stdin (provided by Claude Code) and outputs ANSI-colored text.
 - Context usage is color-coded: green (< 50%), yellow (50-80%), red (> 80%) — helps you know when to start a new conversation.
+
+## Anti-Patterns
+
+| Anti-Pattern | What goes wrong | Fix |
+|--------------|-----------------|-----|
+| Hardcoded absolute paths in `statusLine.command` | Breaks across machines (`/home/tlong01/...` ≠ `/Users/taohu/...`) | Use `~` or `$HOME` in the command path |
+| Committing personal `settings.json` to a public project repo | Leaks plugin choices, machine paths, and personal mode preferences | Keep machine-level config in `~/.claude/`; only commit project-scoped `.claude/settings.json` |
+| Adding entries to `deny:` to "block" tools | Surprising and confusing permission denials | Keep `deny: []` empty; remove from `allow:` instead |
+| Forgetting `jq`/`bc` on a new machine | Statusline silently produces empty output | Run `command -v jq bc` after install; install via package manager if missing |
+| Enabling every plugin "just in case" | Slow startup, conflicting triggers, noisy auto-loads | Enable only the plugins listed here; add others one at a time |
+| Editing the statusline shell script without re-checking Claude Code's stdin schema | Breaks on Claude Code release that adds/renames JSON fields | Re-pull this skill's reference whenever statusline fields change |
+
+## See Also
+
+- `tmux` — Companion terminal multiplexer setup that pairs with this statusline
+- `zsh` — Shell environment for Claude Code sessions
+- `github-cli` — `gh` CLI patterns referenced by the `Bash(*)` permission
+- `fail-fast-ml-engineering` — Same "no silent fallbacks" discipline this config defaults to
+- `meta-init` — Install tao-research-skills under `~/.claude/skills/` so they are discoverable

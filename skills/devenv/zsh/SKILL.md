@@ -89,6 +89,17 @@ source ~/.zshrc
 | Conda not found after setup | Re-source: `source ~/.zshrc` or check Miniconda3 is installed at `~/miniconda3` |
 | Oh My Zsh not found | Re-run the Oh My Zsh installer; check `~/.oh-my-zsh/` exists |
 
+## Anti-Patterns
+
+| Anti-Pattern | What goes wrong | Fix |
+|--------------|-----------------|-----|
+| Hand-editing `~/.zshrc` directly after symlinking | Edits lost on next `git pull` of dotfiles repo | Edit `~/tao-tmux-zsh/zshrc` and re-source |
+| Adding many Oh My Zsh plugins (autosuggestions, syntax-highlighting, etc.) | Slow startup, especially on remote HPC login nodes | Keep plugin list minimal (`git` only) |
+| Manually pasting conda init into zshrc multiple times | Duplicate `>>> conda initialize >>>` blocks shadow each other | Let `conda init zsh` manage it; remove duplicates if they appear |
+| Hardcoding `/Users/...` or `/home/...` paths in PATH | Breaks across machines | Use `$HOME` or `~` for portability |
+| Running `chsh -s $(which zsh)` then expecting the current shell to switch | Takes effect only on next login | Re-login or `exec zsh` to verify before closing the SSH session |
+| Sourcing zshrc inside an sbatch job script | Slurm runs non-login non-interactive shell; zshrc behavior is unreliable | Source conda explicitly in sbatch (`source "$(conda info --base)/etc/profile.d/conda.sh"`) instead |
+
 ## See Also
 
 - `tmux` — Companion tmux configuration from the same dotfiles repo

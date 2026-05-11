@@ -1,11 +1,18 @@
 ---
 name: login-cdp
-description: Use when user says "login", "登录", "fix expired sessions", "refresh login", or needs to re-authenticate CDP browser sessions for any platform. Auto-detects expired platforms and guides interactive re-login via MCP browser tools.
+description: "Use when user says \"login\", \"登录\", \"fix expired sessions\", \"refresh login\", or needs to re-authenticate CDP browser sessions for any platform. Auto-detects expired platforms and guides interactive re-login via MCP browser tools. Triggers: \"login\", \"登录\", \"CDP login\", \"refresh login\", \"expired session\", \"re-authenticate\""
 ---
 
 # CDP Platform Login
 
 Auto-detect expired CDP browser sessions and re-authenticate interactively via MCP browser tools. Supports multiple CDP ports for multi-account setups.
+
+## When to Use
+
+- Sessions on RedNote, Twitter, LinkedIn, Weibo, etc. have expired and need re-login
+- Multi-account CDP setup needs re-authentication on a specific port (9222 vs 9223)
+- Chrome MCP / Playwright MCP returns login pages instead of expected content
+- User asks to "login", "登录", or "refresh sessions" before running a scraping/posting workflow
 
 ## Prerequisites
 
@@ -174,3 +181,22 @@ Prefer whichever is configured to connect to the target CDP port. If both availa
 - **Always close tabs** — CDP tabs accumulate
 - **Sequential only** — one platform at a time
 - **Use `--noproxy '*'`** for all curl commands to localhost — machine may have proxy configured
+
+## Anti-Patterns
+
+| Anti-Pattern | What goes wrong | Fix |
+|--------------|-----------------|-----|
+| Launching Chrome via the assistant's own Bash | Chrome detaches from user's terminal session, may not pick up keychain/GUI | Print the startup command and stop; user pastes into their own terminal |
+| Skipping Step 0 (CDP reachability check) | Later MCP calls fail with cryptic errors | Always `curl http://127.0.0.1:<port>/json/version` first |
+| Hardcoding DOM selectors to detect login state | Selectors break on every platform UI update | Use snapshot/screenshot heuristics (URL + visible text) |
+| Leaving check tabs open | Tabs accumulate, slowing CDP and leaking state | Close after every check (Step 1 step 5, Step 3 step f) |
+| Parallel login across platforms | User can only authenticate in one tab at a time, QR codes overlap | Sequential loop only |
+| Curl to localhost without `--noproxy '*'` | System proxy intercepts loopback, false negatives | Add `--noproxy '*'` to every loopback curl |
+| Silently falling back to WebFetch when CDP is down | Hides the real failure; scrapes wrong (logged-out) view | Stop and surface the failure; print startup command |
+
+## See Also
+
+- `tmux` — Companion shell setup; tmux pane is where the user pastes the Chrome startup command
+- `claude-code-config` — Global Chrome CDP configuration (ports, profiles)
+- `github-cli` — Authenticate `gh` in a similar interactive way for GitHub flows
+- `fail-fast-ml-engineering` — Same "no silent fallbacks" discipline applied here (fail loudly when CDP is down)

@@ -1,6 +1,6 @@
 ---
 name: gemini-generate-img
-description: Use when generating images from text prompts via Google's Gemini image models ("nano-banana") with the `google-genai` SDK or OpenRouter. Covers model choice, aspect ratio, prompt patterns, multi-candidate sampling, and retry logic. Triggers: "generate image", "gemini image", "nano-banana", "text to image", "gemini-3-pro-image", "gemini-2.5-flash-image", "imagen", "paper figure generation"
+description: "Use when generating images from text prompts via Google's Gemini image models (\"nano-banana\") with the `google-genai` SDK or OpenRouter. Covers model choice, aspect ratio, prompt patterns, multi-candidate sampling, and retry logic. Triggers: \"generate image\", \"gemini image\", \"nano-banana\", \"text to image\", \"gemini-3-pro-image\", \"gemini-2.5-flash-image\", \"imagen\", \"paper figure generation\""
 ---
 
 # Gemini Image Generation
