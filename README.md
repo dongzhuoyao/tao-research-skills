@@ -6,13 +6,13 @@
 
 *Distilled from training diffusion models and vision transformers on A100/H100 clusters at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-29-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-31-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
 ---
 
-A plug-and-play collection of **29 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
+A plug-and-play collection of **31 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
 
 - 🧠 **Battle-tested** — every skill is distilled from real research projects, not hypothetical best practices.
 - 🔌 **Multi-agent** — works in Claude Code, Codex, Cursor, Gemini CLI, and any other [Open Agent Skills](https://agentskills.io)–compatible agent.
@@ -80,6 +80,8 @@ The second command symlinks each skill into the project's agent skill paths so t
 | [pdf-reader](skills/research/pdf-reader/) | PDF → markdown + figures + tables workspace (marker / pymupdf4llm / poppler fallback chain), then delegates to arxiv-latex-reader for progressive two-layer reading |
 | [blog-reader](skills/research/blog-reader/) | Faithful, figure-aware digests of long technical blog posts: section-based chunking, parallel-subagent summarization, multimodal figure reading, coverage + claim-traceability tests |
 | [github-reader](skills/research/github-reader/) | GitHub repo digest: shallow clone, 7-section markdown output covering implementation logic, main insight (from paper when found), and key results; delegates paper reading to arxiv-latex-reader / pdf-reader |
+| [youtube-wiki](skills/research/youtube-wiki/) | YouTube video → faithful, timestamped wiki entry under `docs/videos/`. yt-dlp transcript + chapter/LLM/time sectioning + parallel-subagent summaries + verbatim quotes with speaker attribution + coverage test |
+| [insert-wiki](skills/research/insert-wiki/) | Single-URL commonplace book: capture an X tweet, LinkedIn post, HN thread, or short blog as a tagged verbatim entry with a "Why I saved this" hook under `docs/wikis/`. CDP for login-walled hosts; redirects YouTube / arXiv / GitHub-repo URLs to their specialized skills |
 
 ### 🎨 Generative AI
 
