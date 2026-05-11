@@ -77,34 +77,79 @@ command -v yt-dlp >/dev/null || { echo "FAIL: install yt-dlp (brew install yt-dl
 command -v ffmpeg >/dev/null || { echo "FAIL: install ffmpeg (brew install ffmpeg)"; exit 1; }
 ```
 
-A Whisper backend is **only** required if Step 1b finds no YouTube subs. We don't pre-check it here — the fallback is rare on AI-talk content (most major channels have subs), and forcing setup for an unlikely path adds friction.
+A Whisper backend is **only** required if Step 1c finds no YouTube subs. We don't pre-check it here — the fallback is rare on AI-talk content (most major channels have subs), and forcing setup for an unlikely path adds friction.
 
-### 1b. Try YouTube subs first
+### 1b. Detect the video's language (first, so we don't hardcode English priority)
+
+The transcript should be in the **video's own language**. A Chinese podcast must produce a Chinese transcript; an English keynote, an English transcript. Don't bias toward English just because the SKILL author's first language was English.
+
+Fetch `info.json` only (no subs, no audio) and infer the language:
 
 ```bash
 mkdir -p /tmp/yt-wiki
-# List available subtitle languages so you know which codes to request.
-yt-dlp --list-subs "$URL" 2>&1 | tail -40
-# Download. Use the EXACT language codes from --list-subs — NOT bare "en".
-# YouTube usually returns "en-US"/"en-GB" or "zh-Hans"/"zh-Hant"; `--sub-lang en` will
-# silently miss "en-US". Request a comma-list of likely codes.
+yt-dlp --skip-download --write-info-json \
+       --output "/tmp/yt-wiki/<slug>.%(ext)s" \
+       "$URL"
+
+LANG=$(python3 - <<'PY'
+import json, re, sys
+d = json.load(open("/tmp/yt-wiki/<slug>.info.json"))
+
+# Priority order of language signals (most → least reliable):
+# 1. info.json.language (often null on YouTube but authoritative when set)
+# 2. first key in info.json.subtitles (manual subs author chose)
+# 3. first key in info.json.automatic_captions (YouTube's audio-detect)
+# 4. CJK-ratio heuristic on title+description (last resort)
+sig = d.get("language") \
+   or next(iter(d.get("subtitles", {})), None) \
+   or next(iter(d.get("automatic_captions", {})), None)
+
+if not sig:
+    blob = (d.get("title", "") + " " + d.get("description", ""))[:500]
+    cjk = sum(1 for c in blob if "一" <= c <= "鿿")
+    sig = "zh" if cjk / max(len(blob), 1) > 0.10 else "en"
+
+# Normalize to 2-letter ISO (zh-Hans → zh, en-US → en)
+print(re.match(r"[a-z]+", sig.lower()).group())
+PY
+)
+echo "Detected video language: $LANG"
+```
+
+This is the language passed to both the subtitle-fetch (Step 1c) and the Whisper fallback (Step 1d). If you have prior knowledge (`--lang zh` style hint from the user), override it.
+
+### 1c. Fetch YouTube subs in the detected language (with neighbours)
+
+```bash
+# Build a priority list: detected language and its regional variants first,
+# then English as a graceful fallback (some podcasts have *only* an English
+# track even when the audio is bilingual — see the Yao Shunyu interview).
+case "$LANG" in
+  zh) SUBLANG="zh-Hans,zh-Hant,zh-CN,zh-TW,zh,en-US,en-GB,en" ;;
+  en) SUBLANG="en-US,en-GB,en,zh-Hans,zh-Hant" ;;
+  ja) SUBLANG="ja-JP,ja,en-US,en-GB,en" ;;
+  ko) SUBLANG="ko-KR,ko,en-US,en-GB,en" ;;
+  *)  SUBLANG="${LANG},en-US,en-GB,en" ;;
+esac
+
 yt-dlp --write-sub --write-auto-sub \
-       --sub-lang "en-US,en-GB,en,zh-Hans,zh-Hant,zh-CN,zh-TW" \
+       --sub-lang "$SUBLANG" \
        --skip-download \
-       --write-info-json \
        --output "/tmp/yt-wiki/<slug>.%(ext)s" \
        "$URL"
 ```
 
-Pick `<slug>` after fetching: lowercase kebab-case of the video title (from `info.json`), ~40 chars, strip emoji and special characters. The `info.json` also carries `chapters`, `title`, `uploader`, `upload_date`, `duration`, `id` — used by Step 3.
+Pick `<slug>` after fetching: lowercase kebab-case of the video title (from `info.json`), ~40 chars, strip emoji and special characters. `info.json` also carries `chapters`, `title`, `uploader`, `upload_date`, `duration`, `id` — used by Step 3.
 
-Subtitle priority: prefer the original-audio language (`en-US`/`en-GB` for English audio; `zh-Hans` for Mandarin audio — even when YouTube labels the original-language track as `en-US` on a Chinese podcast, which it commonly does). If multiple files appear, take the first non-empty one in priority order.
+When multiple `.vtt` files appear, prefer in `$SUBLANG` order. Record the chosen language code in the wiki header.
 
-**On failure to find any subs** (no `.vtt` files emitted), proceed to Step 1c. **On other yt-dlp failure** (region lock, age gate, missing cookies, missing yt-dlp): stop and surface the specific error. No silent fallback to scraping.
+**Mislabeled-track caveat.** YouTube sometimes serves a manual track labeled `en-US` whose actual content is the original-language audio transliterated (this happens on Chinese podcasts where the uploader chose the wrong UI language). After downloading, sanity-check by counting CJK characters in the first 2 KB of the chosen VTT against the detected language — if a `zh` video's "en-US" sub is >50 % CJK, accept it (yt-dlp downloaded what was tagged; the content matches the audio).
 
-### 1c. Fallback: transcribe with Whisper (only when no subs)
+**On failure to find any subs** (no `.vtt` written), proceed to Step 1d. **On other yt-dlp failure** (region lock, age gate, missing cookies): stop and surface. No silent fallback to scraping.
 
-If Step 1b produced no `.vtt` file, fetch the audio separately and transcribe.
+### 1d. Fallback: transcribe with Whisper in the detected language (only when no subs)
+
+If Step 1c produced no `.vtt` file, fetch the audio separately and transcribe — passing `$LANG` (from Step 1b) as the Whisper language hint. **Do not use `auto`** — Whisper's auto-detect inspects only the first 30 seconds, which is often a music intro or bilingual greeting; passing the detected code is strictly more reliable.
 
 ```bash
 yt-dlp --extract-audio --audio-format m4a \
@@ -140,10 +185,10 @@ mlx_whisper "/tmp/yt-wiki/<slug>.m4a" \
             --output-dir /tmp/yt-wiki \
             --output-name "<slug>" \
             --word-timestamps False \
-            --language auto
+            --language "$LANG"
 ```
 
-Outputs `/tmp/yt-wiki/<slug>.vtt`.
+`$LANG` comes from Step 1b — pass the detected video language explicitly, never `auto`. Outputs `/tmp/yt-wiki/<slug>.vtt`.
 
 #### Backend B — Rapid-MLX server ([raullenchai/Rapid-MLX](https://github.com/raullenchai/Rapid-MLX))
 
@@ -164,9 +209,11 @@ curl -fs http://localhost:8000/v1/audio/transcriptions \
      -F file=@/tmp/yt-wiki/<slug>.m4a \
      -F model=default \
      -F response_format=vtt \
-     -F language=auto \
+     -F language="$LANG" \
      -o /tmp/yt-wiki/<slug>.vtt
 ```
+
+(`$LANG` from Step 1b — explicit, not `auto`.)
 
 If transcription fails (HTTP non-2xx, malformed VTT, empty body): **stop and surface** the curl exit code + server response. Do not fall back to Backend A silently — they may produce different transcripts, and a silent backend swap mid-pipeline would make verification unreliable.
 
@@ -198,7 +245,7 @@ for f in /tmp/yt-wiki/chunks/<slug>_*.m4a; do
        -F file=@"$f" \
        -F model=whisper-1 \
        -F response_format=vtt \
-       -F language=auto \
+       -F language="$LANG" \
        -o "/tmp/yt-wiki/chunks/${idx}.vtt" \
     || { echo "FAIL on chunk $idx"; exit 1; }
 done
@@ -241,7 +288,7 @@ For a 4-hour AI podcast with Mandarin+English code-switching, `large-v3` is the 
 
 #### Language hint
 
-Pass `--language zh` (A), `-F language=zh` (B), or `-F language=zh` (C) for known-Mandarin audio, or `en` for known-English audio, when `auto` mis-detects (rare, but possible on short multilingual intros — Whisper's auto-detect uses only the first 30 seconds).
+All three backends receive the `$LANG` detected in Step 1b — never `auto`. Whisper's built-in auto-detect inspects only the first 30 seconds, which is regularly a music intro, a bilingual greeting, or a sponsor read; explicit `--language <code>` is strictly more reliable. If your detection logic returns the wrong code, fix the detector — don't paper over it with `auto`.
 
 #### Common failure modes
 
@@ -528,6 +575,8 @@ Re-read the final entry end-to-end. For each TL;DR bullet, point at the section 
 - **Inventing "papers mentioned"** when the speaker made only a vague allusion ("there's that scaling paper"). If the title isn't named on-mic and not in the description, leave it out.
 - **Silent fallback to browser scraping** when `yt-dlp` fails. Hard stop, surface the error.
 - **Choosing Whisper when YouTube subs are available.** Empirically (dogfooded on a 4-hour Mandarin AI interview): YouTube's track captured technical English brand/model/people names that whisper-1 missed entirely. Whisper is the fallback, not the preferred path. Local `large-v3` may be better than whisper-1, but only if it fits in your RAM — on 16 GB Apple-Silicon it often doesn't.
+- **Hardcoding English-first subtitle priority.** The transcript should be in the *video's* language, not the SKILL author's. Detect language from `info.json` (or a CJK-ratio heuristic on title+description as a last resort) BEFORE deciding which `.vtt` to download. A Mandarin podcast deserves the Mandarin track first; an English keynote deserves the English track first; an Arabic talk deserves the Arabic track first.
+- **Passing `--language auto` to Whisper.** Whisper's auto-detect uses only the first 30 seconds — music intros, bilingual greetings, and sponsor reads all mis-detect. Always pass the language code derived in Step 1b.
 - **One huge subagent for a 90-min interview.** Defeats the chunking purpose. One subagent per section, dispatched in parallel.
 - **Truncating a long transcript** to fit a single context. Section + chunk + parallel subagents.
 - **Embedding non-clickable timestamps** (`[12:34]` without a link). The whole point is the door back to the video.
