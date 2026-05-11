@@ -6,7 +6,8 @@
 **Duration**: 03:48:01
 **Watched on**: 2026-05-11
 **Sectioning**: chapters (17 author-supplied chapters)
-**Subtitle source**: manual (en-US, but content is mostly Mandarin Chinese with English technical terms)
+**Detected video language**: `en` (from `info.json.subtitles` keys `['en-GB', 'en-US']`) — but the mislabeled-track caveat applies: the en-US track's actual content is Mandarin Chinese with English technical terms (CJK ratio > 50 % in first 2 KB)
+**Transcript source**: youtube-subs (manual en-US, mislabeled — accepted because content matches actual audio language)
 **Speakers**: Zhang Xiaojun (张小珺, host), Yao Shunyu (姚顺宇, guest — ex-Anthropic, currently Google DeepMind)
 
 ## TL;DR
@@ -292,5 +293,6 @@ A rare 4-hour first-person account of training Claude 3.7/4.5 and Gemini 3 from 
 - numbers traced verbatim (12/12 sampled): **12/12** ✅
 - TL;DR bullets supported (6/6 sampled): **6/6** ✅
 - sectioning method used: **chapters** (17 author-supplied)
-- subtitle source: **manual** (en-US track; content is Mandarin Chinese + English technical terms)
+- detected video language: **en** (from `info.json.subtitles` keys) — mislabeled-track caveat fired (actual content is Mandarin per CJK ratio)
+- transcript source: **youtube-subs** (manual en-US, accepted despite the language mislabel because the content matches the actual audio language)
 - verification method: distinctive 5–15-character substring grep against flattened transcript (utterances joined by spaces, since YouTube splits lines at karaoke-highlight boundaries mid-phrase)
