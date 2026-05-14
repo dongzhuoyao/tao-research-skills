@@ -4,3 +4,6 @@ __pycache__/
 
 .claude/
 .playwright-mcp/
+
+docs/videos/audio/
+docs/videos/*.log
