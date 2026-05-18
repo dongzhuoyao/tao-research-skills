@@ -246,3 +246,4 @@ WebFetch → https://api.semanticscholar.org/graph/v1/paper/search?query={topic}
 - `genai-evaluation-metrics` — Understanding evaluation metrics referenced in papers
 - `fail-fast-ml-engineering` — Assessing code quality of released implementations
 - `arxiv-latex-reader` — Progressive reading of large arxiv papers without context overflow
+- `idea-explore` — Invokes this skill for adjacent-literature angles when proposing new directions anchored to a seed paper

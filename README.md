@@ -6,13 +6,13 @@
 
 *Distilled from training diffusion models and vision transformers on A100/H100 clusters at [UvA](https://ivi.fnwi.uva.nl/vislab/) and [CompVis (LMU)](https://ommer-lab.com/).*
 
-[![Skills](https://img.shields.io/badge/skills-32-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Skills](https://img.shields.io/badge/skills-36-blue)]() [![Open Agent Skills](https://img.shields.io/badge/Open%20Agent%20Skills-compatible-blueviolet)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-brightgreen)]() [![Codex](https://img.shields.io/badge/Codex-ready-brightgreen)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 </div>
 
 ---
 
-A plug-and-play collection of **32 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
+A plug-and-play collection of **36 self-contained agent skills** — HPC job submission, W&B logging, PyTorch GPU optimization, GitHub/PDF/arXiv reading, and more — that your coding agent auto-loads the moment a trigger keyword appears in your prompt.
 
 - 🧠 **Battle-tested** — every skill is distilled from real research projects, not hypothetical best practices.
 - 🔌 **Multi-agent** — works in Claude Code, Codex, Cursor, Gemini CLI, and any other [Open Agent Skills](https://agentskills.io)–compatible agent.
@@ -76,6 +76,10 @@ The second command symlinks each skill into the project's agent skill paths so t
 | Skill | Description |
 |-------|-------------|
 | [academic-deep-research](skills/research/academic-deep-research/) | Paper evaluation and topic surveys: venue, citations, GitHub stats, social buzz, reproducibility, author signals, scored markdown reports |
+| [idea-feasibility](skills/research/idea-feasibility/) | Evaluate whether a research or product idea is buildable: normalize the idea, gather primary-source evidence (arXiv / GitHub / project page / model host), score the four hard gates (checkpoint, code, dataset, GPU), emit a verdict + falsifiable MVP |
+| [idea-explore](skills/research/idea-explore/) | Propose new research ideas anchored to a seed paper or method: orchestrates `followup-analysis` (exclude already-done directions), GitHub-issue mining (community-known drawbacks), and `academic-deep-research` (adjacent angles) into a ranked candidate-ideas report — writes to `./idea_box/<slug>/explore.md` when invoked from an idea-box dir, else `docs/research/` |
+| [idea-box](skills/research/idea-box/) | Per-idea on-disk directory + hard-gated lifecycle (`explored → feasible/blocked → building → built/killed`) that pulls feasibility / ablation-design / reader skills into a coherent workflow. Public skill defines the convention; idea data lives in a private repo (e.g. `~/lab/idea-box`) |
+| [followup-analysis](skills/research/followup-analysis/) | Forward-citation cone of a seed paper: resolve via Semantic Scholar, paginate citing papers, triage by impact + recency, parallel-subagent tag each follow-up (extends/improves/applies/theoretical/criticism), clustered markdown report under `docs/research/` |
 | [arxiv-latex-reader](skills/research/arxiv-latex-reader/) | Progressive paper reading: index all sections (~2k tokens), deep-read on demand, chunk-summarize long sections, never truncates |
 | [pdf-reader](skills/research/pdf-reader/) | PDF → markdown + figures + tables workspace (marker / pymupdf4llm / poppler fallback chain), then delegates to arxiv-latex-reader for progressive two-layer reading |
 | [blog-reader](skills/research/blog-reader/) | Faithful, figure-aware digests of long technical blog posts: section-based chunking, parallel-subagent summarization, multimodal figure reading, coverage + claim-traceability tests |

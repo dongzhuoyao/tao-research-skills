@@ -213,3 +213,5 @@ For multi-objective ablations, print separate tables for each objective class so
 - `wandb-experiment-tracking` — Grouping ablation runs in W&B, `final/` summary metrics
 - `hydra-experiment-config` — Variant configs using Hydra config groups
 - `slurm-gpu-training` — Slurm launcher pattern for ablation scripts
+- `idea-feasibility` — Run this *before* ablation design; ablation work on a `Blocked` idea is wasted
+- `idea-box` — Per-idea lifecycle that consumes this skill's output as the `feasible → building` gate. When invoked from inside `./idea_box/<slug>/`, write the ablation plan to `./idea_box/<slug>/ablations.md`
