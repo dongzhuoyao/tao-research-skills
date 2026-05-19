@@ -7,3 +7,12 @@ __pycache__/
 
 docs/videos/audio/
 docs/videos/*.log
+
+# Private idea data (per AGENTS.md: skill ships the convention; idea data lives elsewhere)
+idea_box/
+
+# Scratch / cache dirs from various tooling
+.omx/
+.pdf_links/
+.pdf_workspace/
+.playwright-cli/
