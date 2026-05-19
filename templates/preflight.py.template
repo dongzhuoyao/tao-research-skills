@@ -1,0 +1,218 @@
+"""Generic experiment preflight template.
+
+Documentation-only template for new execution repos.
+Fill in project-specific defaults in a separate config file rather than
+hardcoding them here.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+
+def run_capture(cmd: list[str], timeout: int = 30) -> tuple[int, str, str]:
+    proc = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    return proc.returncode, proc.stdout, proc.stderr
+
+
+def ensure(condition: bool, message: str) -> None:
+    if not condition:
+        raise RuntimeError(message)
+
+
+def load_project_config(path: Path | None) -> dict:
+    if path is None:
+        return {}
+    return json.loads(path.read_text())
+
+
+def get_nested(cfg: dict, *keys, default=None):
+    cur = cfg
+    for key in keys:
+        if not isinstance(cur, dict) or key not in cur:
+            return default
+        cur = cur[key]
+    return cur
+
+
+def check_python() -> dict:
+    python3 = shutil.which("python3")
+    ensure(python3 is not None, "python3 not found")
+    rc, out, err = run_capture([python3, "-V"])
+    ensure(rc == 0, f"python3 -V failed: {err or out}")
+    return {"python3": python3, "python_version": (out or err).strip()}
+
+
+def check_storage(path_str: str | None) -> dict:
+    if path_str is None:
+        return {"workspace_root": None, "writable": None}
+    path = Path(path_str)
+    path.mkdir(parents=True, exist_ok=True)
+    probe = path / ".preflight_write_test"
+    probe.write_text("ok")
+    probe.unlink()
+    usage = shutil.disk_usage(path)
+    return {
+        "workspace_root": str(path),
+        "writable": True,
+        "free_gb": round(usage.free / 1e9, 2),
+    }
+
+
+def check_gpus(selected_gpu_ids: list[int] | None, gpu_quota: int | None) -> dict:
+    if shutil.which("nvidia-smi") is None:
+        return {"nvidia_smi": False, "gpu_count": 0, "gpu_ids": []}
+
+    rc, out, err = run_capture(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.total,memory.used,utilization.gpu",
+            "--format=csv,noheader,nounits",
+        ]
+    )
+    ensure(rc == 0, f"nvidia-smi query failed: {err or out}")
+    rows = [line.strip() for line in out.splitlines() if line.strip()]
+    parsed = []
+    for row in rows:
+        idx, mem_total, mem_used, util = [part.strip() for part in row.split(",")]
+        parsed.append(
+            {
+                "index": int(idx),
+                "memory_total_mb": int(mem_total),
+                "memory_used_mb": int(mem_used),
+                "utilization_gpu": int(util),
+            }
+        )
+
+    visible_ids = [entry["index"] for entry in parsed]
+    if selected_gpu_ids:
+        for gpu_id in selected_gpu_ids:
+            ensure(gpu_id in visible_ids, f"requested gpu id {gpu_id} is not visible")
+
+    if gpu_quota is not None:
+        ensure(gpu_quota > 0, "gpu_quota must be positive")
+        free_ids = [
+            entry["index"]
+            for entry in parsed
+            if entry["utilization_gpu"] == 0 and entry["memory_used_mb"] < 1024
+        ]
+        ensure(
+            len(free_ids) >= gpu_quota,
+            f"requested gpu_quota={gpu_quota}, but only {len(free_ids)} apparently free gpus: {free_ids}",
+        )
+    else:
+        free_ids = [
+            entry["index"]
+            for entry in parsed
+            if entry["utilization_gpu"] == 0 and entry["memory_used_mb"] < 1024
+        ]
+
+    return {
+        "nvidia_smi": True,
+        "gpu_count": len(parsed),
+        "gpus": parsed,
+        "free_gpu_ids_heuristic": free_ids,
+    }
+
+
+def check_wandb(use_wandb: bool, entity: str | None, project: str | None) -> dict:
+    if not use_wandb:
+        return {"use_wandb": False}
+
+    ensure(os.environ.get("WANDB_API_KEY"), "WANDB_API_KEY is missing")
+    python3 = shutil.which("python3")
+    ensure(python3 is not None, "python3 not found for wandb check")
+
+    script = """
+import os
+import wandb
+run = wandb.init(
+    project=os.environ.get("PREFLIGHT_WANDB_PROJECT"),
+    entity=os.environ.get("PREFLIGHT_WANDB_ENTITY") or None,
+    mode="online",
+    reinit=True,
+)
+wandb.log({"preflight": 1})
+run.finish()
+print("wandb_ok")
+"""
+    env = os.environ.copy()
+    env["PREFLIGHT_WANDB_PROJECT"] = project or ""
+    env["PREFLIGHT_WANDB_ENTITY"] = entity or ""
+    proc = subprocess.run(
+        [python3, "-c", script],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        env=env,
+    )
+    ensure(proc.returncode == 0, f"wandb preflight failed: {proc.stderr or proc.stdout}")
+    ensure("wandb_ok" in proc.stdout, "wandb preflight did not confirm success")
+    return {
+        "use_wandb": True,
+        "wandb_entity": entity,
+        "wandb_project": project,
+    }
+
+
+def check_dataset_lock(dataset_root: str | None) -> dict:
+    if dataset_root is None:
+        return {"dataset_root": None, "lock_writable": None}
+    root = Path(dataset_root)
+    root.mkdir(parents=True, exist_ok=True)
+    lock_path = root / ".dataset_prepare.lock"
+    lock_path.write_text("lock")
+    lock_path.unlink()
+    return {"dataset_root": str(root), "lock_writable": True}
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="Generic experiment preflight")
+    p.add_argument("--project-config", type=Path, default=None, help="Optional JSON config file")
+    p.add_argument("--workspace-root", type=str, default=None)
+    p.add_argument("--dataset-root", type=str, default=None)
+    p.add_argument("--gpu-quota", type=int, default=None)
+    p.add_argument("--gpu-ids", type=str, default=None, help="Comma-separated GPU ids")
+    p.add_argument("--use-wandb", action="store_true")
+    p.add_argument("--wandb-entity", type=str, default=None)
+    p.add_argument("--wandb-project", type=str, default=None)
+    return p.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    cfg = load_project_config(args.project_config)
+
+    workspace_root = args.workspace_root or get_nested(cfg, "paths", "workspace_root")
+    dataset_root = args.dataset_root or get_nested(cfg, "paths", "dataset_root")
+    gpu_quota = args.gpu_quota if args.gpu_quota is not None else get_nested(cfg, "execution", "gpu_quota")
+    if args.gpu_ids is not None:
+        gpu_ids = [int(part.strip()) for part in args.gpu_ids.split(",") if part.strip()]
+    else:
+        gpu_ids = get_nested(cfg, "execution", "gpu_ids")
+    use_wandb = args.use_wandb or bool(get_nested(cfg, "tracking", "use_wandb", default=False))
+    wandb_entity = args.wandb_entity or get_nested(cfg, "tracking", "wandb_entity")
+    wandb_project = args.wandb_project or get_nested(cfg, "tracking", "wandb_project")
+
+    report = {
+        "python": check_python(),
+        "storage": check_storage(workspace_root),
+        "dataset": check_dataset_lock(dataset_root),
+        "gpus": check_gpus(gpu_ids, gpu_quota),
+        "wandb": check_wandb(use_wandb, wandb_entity, wandb_project),
+    }
+    print(json.dumps(report, indent=2))
+
+
+if __name__ == "__main__":
+    main()

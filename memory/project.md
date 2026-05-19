@@ -20,6 +20,7 @@ memory/                  # Canonical memory (project.md) + Claude overlay (claud
 - Skills are grouped by category under `skills/<category>/` — agents still scan one level deep via individual symlinks created by `skills/infra/meta-init`, so the nesting is transparent
 - No runnable code — documentation and knowledge only
 - Installed as a git submodule into other projects (via `skills/infra/meta-init/scripts/meta_init.py --repo <submodule-path>`)
+- Idea artifacts may live under `./idea_box/`, but any executable prototype or implementation derived from an idea must live outside this public repo in a separate execution workspace; keep only docs, design notes, and links/conventions here
 
 ## Build & Test
 
@@ -149,3 +150,5 @@ docs: update README with new skill count
 
 - Keep changes direct and pragmatic.
 - Verify important changes with concrete checks.
+- When the user provides execution-environment facts that matter for ongoing experiments, record them in project memory and keep generated agent files in sync.
+- For shared remote environments, record both the access pattern and the filesystem placement rules, so future runs do not silently use the wrong user context or fill the wrong disk.

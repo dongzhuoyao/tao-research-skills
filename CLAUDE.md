@@ -30,3 +30,26 @@ export OPENAI_API_KEY="$(grep '^OPENAI_API_KEY=' ~/lab/flask/.env | head -1 | cu
 ### Sub-agent results aren't visible to the user
 
 When a parallel-summarize step finishes, each subagent's report comes back as a tool result in *your* context — not the user's. Have the subagents write their structured notes to disk (e.g. `/tmp/yt-wiki/<slug>.notes.<i>.md`) and return only a short "OK §i" confirmation; then read the files yourself during synthesis. Trying to inline 17 agent responses bloats your context and the user sees none of it anyway.
+
+### Host-specific: idea execution repos live under `~/brain/projects/`
+
+This repo can hold `idea_box/` documentation entries, but it must not hold runnable code. On this machine, when an idea graduates from notes to implementation, create the executable project under `~/brain/projects/<slug>` and keep the corresponding `idea_box/<slug>/` entry in `tao-research-skills` as the documentation anchor.
+
+### Host-specific: Brev capacity
+
+The user reported that `Brev` on `NVIDIA` currently has **8 free GPUs** available for experiments. Prefer treating this as the primary remote execution target for GPU-heavy runs when local CUDA is unavailable.
+
+### Host-specific: Brev login and storage rules
+
+On this machine's Brev workflow, the first SSH lands on a **shared/public account**. After logging in there, switch to the actual user session with:
+
+```bash
+ssh tao@localhost
+```
+
+For datasets, caches, checkpoints, and other heavy experiment artifacts on Brev:
+
+- use `/data/...`
+- do **not** store them under `$HOME`
+
+This is a hard operational rule for Brev runs.
