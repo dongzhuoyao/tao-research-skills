@@ -27,9 +27,9 @@ export OPENAI_API_KEY="$(grep '^OPENAI_API_KEY=' ~/lab/flask/.env | head -1 | cu
 
 When a parallel-summarize step finishes, each subagent's report comes back as a tool result in *your* context — not the user's. Have the subagents write their structured notes to disk (e.g. `/tmp/yt-wiki/<slug>.notes.<i>.md`) and return only a short "OK §i" confirmation; then read the files yourself during synthesis. Trying to inline 17 agent responses bloats your context and the user sees none of it anyway.
 
-### Host-specific: idea execution repos live under `~/brain/projects/`
+### Host-specific: idea execution repos live under `~/lab/deep-research/workspace/`
 
-This repo can hold `idea_box/` documentation entries, but it must not hold runnable code. On this machine, when an idea graduates from notes to implementation, create the executable project under `~/brain/projects/<slug>` and keep the corresponding `idea_box/<slug>/` entry in `tao-research-skills` as the documentation anchor.
+This repo can hold `idea_box/` documentation entries, but it must not hold runnable code. On this machine, when an idea graduates from notes to implementation, keep the executable project under `~/lab/deep-research/workspace/<slug-or-project-root>/` and keep the corresponding `idea_box/<slug>/` entry in `tao-research-skills` as the documentation anchor.
 
 ### Host-specific: Brev capacity
 
