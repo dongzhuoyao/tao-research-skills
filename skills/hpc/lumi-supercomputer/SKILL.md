@@ -66,6 +66,62 @@ These are the critical gotchas when moving from NVIDIA (Snellius, etc.) to LUMI:
 
 12. **zen3 CPU optimization**: LUMI-G CPUs are AMD EPYC Trento (zen3 architecture). Compilers can optimize specifically for zen3 — the `CrayEnv` module auto-loads the correct target.
 
+## Launch Discipline
+
+### dev-g vs small-g Decision
+
+| Scenario | Partition | Walltime |
+|----------|-----------|----------|
+| Short single-GPU sanity, smoke test, latent extraction probe | `dev-g` | ≤3 hrs |
+| Resumable training chunk (checkpoint every hour) | `dev-g` | ≤3 hrs |
+| Longer production run, multi-GPU training | `small-g` | Up to 3 days |
+
+**Never silently fall back from `dev-g` to `small-g`.** If `dev-g` is unavailable, report it and wait or requeue explicitly.
+
+### Probe → Production Dependency Chain
+
+Before any `small-g` production job:
+
+1. Submit the **same launcher/config** as a `dev-g` probe with reduced steps/eval
+2. Use **10-minute walltime** for probes unless user specifies otherwise
+3. Submit production with `--dependency=afterok:<dev-g-job-id>`
+
+**Concurrency limit:** At most two `dev-g` probes active at once. When preparing more than two production jobs, chain probes with Slurm dependencies so the wave respects the limit.
+
+### CPU Jobs for Dataset Preparation
+
+For raw dataset download, unpacking, or non-GPU preprocessing:
+- Use CPU partitions (`debug` or `small`)
+- Do **not** request GPUs
+- Submit a short CPU probe first (one shard or dry-run that exercises auth, imports, storage writes, extraction)
+- Submit full extraction only after probe succeeds
+
+Reserve GPU jobs for GPU-bound preprocessing such as VAE latent extraction.
+
+### SSH Jump-Node Verification
+
+Before any remote check, sync, preflight, `squeue`, or `sbatch`:
+
+1. Verify `ssh -G "$LUMI_SSH"` resolves to a jump-routed target
+2. Check for `proxyjump` or `proxycommand`
+3. If it resolves as a direct login host, stop and fix SSH config before proceeding
+
+### Code Synchronization
+
+- GitHub is the source of truth
+- Commit and push outer/submodule changes, then pull on LUMI through the jump route
+- Avoid `scp`/`rsync` for routine code sync
+- Reserve file copy only for emergency patches or non-git artifacts
+
+### W&B Naming Norm
+
+All LUMI launch scripts must follow the shared-project convention:
+- One shared W&B project for comparison
+- Slurm job name identical to `WANDB_EXPERIMENT_NAME`
+- Group = `<experiment-name>`
+- Run name = experiment name + backend/run id or timestamp
+- Do not use alternate labels like `rerun-*` or `dev-*` unless W&B uses them too
+
 ## GPU Job Template (Single Node)
 
 ```bash
@@ -132,10 +188,16 @@ See [references/pytorch-gpu-jobs.md](references/pytorch-gpu-jobs.md) for full mu
 | Missing NCCL vars | Set `NCCL_SOCKET_IFNAME` and `NCCL_NET_GDR_LEVEL` |
 | Expecting `conda activate` to work | Use `module load PyTorch/...` + Singularity |
 | No `--no-requeue` | Jobs auto-requeue on preemption, duplicating output |
-| `--mail-type` in sbatch | Not supported on LUMI |
 | Using pre-Jan-2026 software | Recompile with PE 25.03+, ROCm 6.3.4 |
 | Wrong CPU targets in job | Add `module load CrayEnv` in sbatch script |
 | Using zsh | Cray PE init scripts are bash-only. Use bash on LUMI. |
+| Submitting `small-g` without `dev-g` probe | Always probe first, then chain with `--dependency=afterok:` |
+| Using GPUs for raw dataset download/unpacking | Use CPU partitions (`debug`/`small`) for data prep |
+| Direct SSH login without jump-node routing | Verify `ssh -G` shows `proxyjump` or `proxycommand` |
+| `scp`/`rsync` for routine code sync | Use GitHub: commit, push, then pull on LUMI |
+| Slurm job name differing from W&B experiment name | Use the same source variable for both |
+| More than two concurrent `dev-g` probes | Chain probes with Slurm dependencies |
+| Including `--mail-type` in sbatch | LUMI does not support Slurm email notifications |
 | `tmux`: missing or unsuitable terminal | `export TERM=xterm-256color` before `tmux`. LUMI lacks terminfo for modern terminals (Ghostty, Kitty, etc.). Fix permanently via `SetEnv TERM=xterm-256color` in local `~/.ssh/config`. |
 
 ## Detailed References
