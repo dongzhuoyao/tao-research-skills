@@ -100,6 +100,27 @@ run_name = f"fullrun-tiny-{os.environ.get('SLURM_JOB_ID', 'local')}"
 run_name = f"debug-{datetime.now().strftime('%H%M')}"
 ```
 
+### Backend Tags Belong in Launch Scripts
+
+For scale-up/HPC experiments, define backend-specific W&B tags in the launch
+script (`.sbatch` or backend shell wrapper), then pass them into Python through
+a generic argument such as `--wandb-tags` or a generic environment variable.
+Do not hardcode sandbox-, cluster-, partition-, or GPU-specific tag defaults in
+Python entry points.
+
+Good Slurm pattern:
+
+```bash
+WANDB_TAGS="${WANDB_TAGS:-backend:snellius,platform:cuda,gpu:a100,workflow:my_exp,stage:report,slurm:${SLURM_JOB_ID:-unknown}}"
+python scripts/report.py --wandb --wandb-tags "${WANDB_TAGS}"
+```
+
+Python should only parse and forward tags:
+
+```python
+wandb.init(project=project, name=run_name, tags=parse_wandb_tags(args.wandb_tags))
+```
+
 ### GPU Memory Logging
 
 Use `memory_reserved()` to match what `nvidia-smi` reports:
