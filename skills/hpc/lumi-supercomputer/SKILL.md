@@ -105,6 +105,7 @@ Before any remote check, sync, preflight, `squeue`, or `sbatch`:
 1. Verify `ssh -G "$LUMI_SSH"` resolves to a jump-routed target
 2. Check for `proxyjump` or `proxycommand`
 3. If it resolves as a direct login host, stop and fix SSH config before proceeding
+4. Remember that `lumi.csc.fi` resolves to multiple login nodes (`uan01–uan04`) via DNS round-robin. A later SSH to the same alias may land on a different node, so `tmux ls`/`ps` are unreliable for monitoring long login-node processes; use durable shared-scratch artifacts as the source of truth.
 
 ### Code Synchronization
 
@@ -195,6 +196,7 @@ See [references/pytorch-gpu-jobs.md](references/pytorch-gpu-jobs.md) for full mu
 | Using GPUs for raw dataset download/unpacking | Use CPU partitions (`debug`/`small`) for data prep |
 | Direct SSH login without jump-node routing | Verify `ssh -G` shows `proxyjump` or `proxycommand` |
 | `scp`/`rsync` for routine code sync | Use GitHub: commit, push, then pull on LUMI |
+| Monitoring login-node tasks with `tmux ls` from a fresh SSH | `lumi.csc.fi` load-balances across `uan01–uan04`; use shared-scratch log/CSV/state files as the source of truth |
 | Slurm job name differing from W&B experiment name | Use the same source variable for both |
 | More than two concurrent `dev-g` probes | Chain probes with Slurm dependencies |
 | Including `--mail-type` in sbatch | LUMI does not support Slurm email notifications |
